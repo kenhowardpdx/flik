@@ -1,4 +1,6 @@
 $icon-font-path: "/bower_components/bootstrap-sass-official/vendor/assets/fonts/bootstrap/";
+$brand-primary: #61e0f3;
+$brand-color: $brand-primary;
 
 @import 'bootstrap-sass-official/vendor/assets/stylesheets/bootstrap';
 
@@ -92,4 +94,65 @@ body {
     .jumbotron {
         border-bottom: 0;
     }
+}
+
+.navbar-citrus {
+  background-color: $brand-primary;
+  border-color: darken($brand-primary, 10%);
+  box-shadow: 0 2px 5px rgba(0,0,0,.3);
+  .navbar-toggle {
+    border-color: transparent;
+    float: left;
+    margin-left: 15px;
+    &:focus,&:hover {
+      background-color: #fff;
+      > .icon-bar {
+        background-color: $brand-primary;
+      }
+    }
+  }
+  .navbar-collapse {
+    border-color: darken($brand-primary,10%);
+  }
+  .navbar-brand {
+    float: none;
+    margin: 0 auto;
+    color: #fff;
+    display: inline-block;
+  }
+  .navbar-header {
+    text-align: center;
+  }
+  .navbar-nav {
+    > .active {
+      > a, > a:hover, > a:focus {
+        background-color: darken($brand-primary, 20%);
+      }
+    }
+    > li {
+      > a {
+        color: #fff;
+        &:hover, &:focus {
+          background-color: darken($brand-primary, 10%);
+        }
+      }
+    }
+  }
+}
+
+.navbar-fixed-top {
+  + div.main {
+    margin-top: 60px;
+  }
+}
+
+.btn-add-time {
+  position: relative;
+  float: right;
+  margin-right: 20px;
+  margin-left: 20px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  @include button-variant(#fff, $brand-primary, #fff);
+  @include button-size(2px 4px, 3px 5px, 10px, 12px, 5px);
 }
