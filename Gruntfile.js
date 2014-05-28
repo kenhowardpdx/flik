@@ -230,11 +230,11 @@ module.exports = function (grunt) {
     },
 
     // The following *-min tasks produce minified files in the dist folder
-    cssmin: {
-      options: {
-        root: '<%= yeoman.app %>'
-      }
-    },
+    // cssmin: {
+    //   options: {
+    //     root: '<%= yeoman.app %>'
+    //   }
+    // },
 
     imagemin: {
       dist: {
@@ -317,6 +317,16 @@ module.exports = function (grunt) {
           cwd: '.tmp/images',
           dest: '<%= yeoman.dist %>/images',
           src: ['generated/*']
+        }, {
+          expand: true,
+          cwd: '<%= yeoman.app %>/bower_components/bootstrap-sass-official/vendor/assets/fonts/bootstrap',
+          dest: '<%= yeoman.dist %>/fonts',
+          src: [
+            '{,*/}*.eot',
+            '{,*/}*.svg',
+            '{,*/}*.ttf',
+            '{,*/}*.woff',
+          ]
         }]
       },
       styles: {
@@ -324,7 +334,17 @@ module.exports = function (grunt) {
         cwd: '<%= yeoman.app %>/styles',
         dest: '.tmp/styles/',
         src: '{,*/}*.css'
-      }
+      },
+      // fonts: {
+      //     expand: true,
+      //     cwd: '<%= yeoman.app %>/bower_components/bootstrap-sass-official/vendor/assets/fonts',
+      //     dest: '.tmp/fonts/',
+      //     src: [
+      //       '{,*/}*.eot',
+      //       '{,*/}*.svg',
+      //       '{,*/}*.ttf',
+      //       '{,*/}*.woff',
+      //     ]}
     },
 
     // Run some tasks in parallel to speed up the build process

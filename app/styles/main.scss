@@ -1,4 +1,7 @@
-$icon-font-path: "/bower_components/bootstrap-sass-official/vendor/assets/fonts/bootstrap/";
+$icon-font-path: "../fonts/";
+// bower:scss
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap.scss";
+// endbower
 $brand-primary: #61e0f3;
 $brand-color: $brand-primary;
 
