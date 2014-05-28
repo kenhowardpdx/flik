@@ -1,6 +1,6 @@
 $icon-font-path: "../fonts/";
 // bower:scss
-@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap.scss";
+$icon-font-path: "../bower_components/bootstrap-sass-official/vendor/assets/fonts/bootstrap/";
 // endbower
 $brand-primary: #61e0f3;
 $brand-color: $brand-primary;
@@ -8,7 +8,6 @@ $brand-color: $brand-primary;
 @import 'bootstrap-sass-official/vendor/assets/stylesheets/bootstrap';
 
 // bower:scss
-@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap.scss";
 // endbower
 
 .browsehappy {
