@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
   </head>
-  <body ng-app="citrusApp">
+  <body ng-app="citrusApp" ng-controller="ApplicationController">
     <!--[if lt IE 7]>
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
@@ -40,24 +40,18 @@
     </div>
     <div class="collapse navbar-collapse" id="main-nav">
       <ul class="nav navbar-nav">
-        <li ng-class="{active:isActive('/')}"><a ng-href="#">Home</a></li>
-        <li ng-class="{active:isActive('/login')}"><a ng-href="#/login">Login</a></li>
-        <li ng-class="{active:isActive('/signup')}"><a ng-href="#/signup">Sign Up</a></li>
+        <li ng-class="{active:isActive('/')}"><a ng-href="/">Home</a></li>
+        <li ng-class="{active:isActive('/login')}"><a ng-href="/login">Login</a></li>
+        <li ng-class="{active:isActive('/signup')}"><a ng-href="/signup">Sign Up</a></li>
       </ul>
     </div>
   </div>
 </nav>
 <div class="container main">
-  <!-- <div class="header" ng-controller="MainCtrl">
-    <ul class="nav nav-pills pull-right">
-      <li ng-class="{active:isActive('/')}"><a ng-href="#">Home</a></li>
-      <li ng-class="{active:isActive('/login')}"><a ng-href="#/login">Login</a></li>
-      <li ng-class="{active:isActive('/signup')}"><a ng-href="#/signup">Sign Up</a></li>
-    </ul>
-    <h3 class="text-muted">Citrus</h3>
-  </div> -->
+
     <!-- Add your site or application content here -->
     <div ng-view=""></div>
+    <div ng-if="currentUser">Welcome, {{ currentUser.name }}</div>
 </div>
 
     <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->

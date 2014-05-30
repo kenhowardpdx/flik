@@ -1,1 +1,18 @@
-<p>This is the login view.</p>
+<iframe src="auth.html" name="auth"
+        style="display:none"></iframe>
+
+<form ng-submit="login(credentials)" action="auth.html" target="auth" method="post" novalidate form-autofill-fix>
+  <div class="form-group">
+    <label for="username">Username:</label>
+    <input type="text" name="username" id="username" ng-model="credentials.username" class="form-control"  />
+  </div>
+  <div class="form-group">
+    <label for="password">Password:</label>
+    <input type="password" name="password" id="password" ng-model="credentials.password" class="form-control" />
+  </div>
+  <div class="form-group">
+    <button type="submit" class="btn btn-primary" id="btnLogin">
+      Log In
+    </button>
+  </div>
+</form>

@@ -1,13 +1,10 @@
 'use strict';
 
-angular
-  .module('citrusApp', [
-    'ngCookies',
-    'ngResource',
-    'ngSanitize',
-    'ngRoute'
-  ])
-  .config(function ($routeProvider) {
+var app = angular.module('citrusApp', ['ngCookies','ngResource','ngSanitize','ngRoute'
+  ]);
+  
+  app.config(function ($routeProvider, $locationProvider) {
+    $locationProvider.html5Mode(true);
     $routeProvider
       .when('/', {
         templateUrl: 'views/main.html',
@@ -24,4 +21,14 @@ angular
       .otherwise({
         redirectTo: '/'
       });
+  })
+  .run(function ($cookieStore) {
+    if ($cookieStore.get('auth')) {
+      // display today's entries
+      console.log('authorized');
+    }
+    else {
+      // display login screen
+      console.log('not authorized');
+    }
   });

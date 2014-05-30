@@ -29,12 +29,17 @@ angular.module('citrusApp')
       //OAuth.initialize('IZhywZ2WEaqbWh7-zWYN_VL_acY');
       //OAuth.redirect('twitter', "/#/");
 
-      $http.jsonp(baseURL + '/api/users', userData).
+      $http.post(baseURL + '/api/users', userData).
         success(function(data, status) {
           // this callback will be called asynchronously
           // when the response is available
-          console.log(data);
-          console.log(status);
+          if(data.UserId) {
+            // log in the new user
+
+          }
+          else {
+            // error
+          }
         }).
         error(function(data, status) {
           // called asynchronously if an error occurs
@@ -44,10 +49,4 @@ angular.module('citrusApp')
         });
     };
 
-
-    $scope.awesomeThings = [
-      'HTML5 Boilerplate',
-      'AngularJS',
-      'Karma'
-    ];
   });
