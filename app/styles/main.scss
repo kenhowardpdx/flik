@@ -156,3 +156,8 @@ body {
   @include button-variant(#fff, $brand-primary, #fff);
   @include button-size(2px 4px, 3px 5px, 10px, 12px, 5px);
 }
+
+/* Page (View) Title */
+.view-title {
+  margin: 0 0 1em;
+}

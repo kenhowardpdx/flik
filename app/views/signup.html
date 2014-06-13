@@ -1,19 +1,27 @@
+<h3 class="view-title">Sign Up</h3>
 <form ng-submit="createUser()">
+  <div class="panel panel-danger" ng-show="errors">
+    <div class="panel-heading" ng-model="errorHeading">Error</div>
+    <div class="panel-body">
+      <ul>
+        <li ng-repeat="error in errorList">{{ error.Message }}</li>
+    </div>
+  </div>
   <div class="form-group">
     <label for="username">Username:</label>
-    <input ng-model="userUsername" type="text" name="username" id="username" class="form-control" />
+    <input ng-model="username" type="text" name="username" id="username" class="form-control" />
   </div>
   <div class="form-group">
     <label for="name">Your Name:</label>
-    <input ng-model="userName" type="text" name="name" id="name" class="form-control" />
+    <input ng-model="name" type="text" name="name" id="name" class="form-control" />
   </div>
   <div class="form-group">
     <label for="password">Password:</label>
-    <input ng-model="userPassword" type="password" name="password" id="password" class="form-control" />
+    <input ng-model="password" type="password" name="password" id="password" class="form-control" />
   </div>
   <div class="form-group">
     <label for="email">Email Address:</label>
-    <input ng-model="userEmail" type="email" name="email" id="email" class="form-control" />
+    <input ng-model="email" type="email" name="email" id="email" class="form-control" />
   </div>
   <div class="form-group">
     <button type="submit" class="btn btn-primary" id="btnSignup">

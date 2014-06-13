@@ -1,25 +1,25 @@
 'use strict';
+/* global flik: true */
 
 angular.module('citrusApp')
-  .controller('SignupCtrl', function ($scope, $http) {
+  .controller('SignupCtrl', function ($rootScope, $scope, $http, UserServices) {
 
-
-    var userData = {
+    var newUser = {
       Username: '',
       Email: '',
       Password: '',
       UserID: null
     };
 
-    var baseURL = 'https://csgprohackathonapi.azurewebsites.net';
+    $scope.errors = false; // hides the error panel
 
     $scope.createUser = function() {
 
-      userData = {
-        Password: $scope.userPassword,
-        UserName: $scope.userUsername,
-        Name    : $scope.userName,
-        Email   : $scope.userEmail,
+      newUser = {
+        Password: $scope.password,
+        UserName: flik.username($scope.username),
+        Name    : $scope.name,
+        Email   : $scope.email,
         TimeZoneId : 'Pacific Standard Time',
         // UseStopwatchApproachToTimeEntry: false,
         // ExternalSystemKey : 'this is a string #CITRUS'
@@ -29,23 +29,25 @@ angular.module('citrusApp')
       //OAuth.initialize('IZhywZ2WEaqbWh7-zWYN_VL_acY');
       //OAuth.redirect('twitter', "/#/");
 
-      $http.post(baseURL + '/api/users', userData).
-        success(function(data, status) {
-          // this callback will be called asynchronously
-          // when the response is available
-          if(data.UserId) {
-            // log in the new user
-
-          }
-          else {
-            // error
-          }
+      $http.post(flik.apiBaseUrl + 'api/users', newUser).
+        success(function(data) {
+          $rootScope.user = data;
+          UserServices.login($scope.username,$scope.password);
         }).
         error(function(data, status) {
           // called asynchronously if an error occurs
           // or server returns response with an error status.
-          console.log(data);
-          console.log(status);
+          if(status === 400) {
+
+            // check if the user already exists
+
+            $scope.errors = true;
+            $scope.errorHeading = data.Message;
+            $scope.errorList = data.Errors;
+          } else {
+            console.log('Status != 400');
+            console.log(status);
+          }
         });
     };
 

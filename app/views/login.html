@@ -1,7 +1,4 @@
-<iframe src="auth.html" name="auth"
-        style="display:none"></iframe>
-
-<form ng-submit="login(credentials)" action="auth.html" target="auth" method="post" novalidate form-autofill-fix>
+<form ng-submit="login(credentials)" method="post" novalidate form-autofill-fix>
   <div class="form-group">
     <label for="username">Username:</label>
     <input type="text" name="username" id="username" ng-model="credentials.username" class="form-control"  />

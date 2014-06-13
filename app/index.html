@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
   </head>
-  <body ng-app="citrusApp" ng-controller="ApplicationController as app">
+  <body ng-app="citrusApp">
     <!--[if lt IE 7]>
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
@@ -40,9 +40,10 @@
     </div>
     <div class="collapse navbar-collapse" id="main-nav">
       <ul class="nav navbar-nav">
-        <li ng-class="{active:isActive('/')}"><a ng-href="/">Home</a></li>
-        <li ng-class="{active:isActive('/login')}"><a ng-href="/login" ng-hide="app.LoggedIn">Login</a></li>
-        <li ng-class="{active:isActive('/signup')}" ng-hide="app.LoggedIn"><a ng-href="/signup">Sign Up</a></li>
+        <li ng-class="{active:isActive('/')}" data-toggle="collapse" data-target="#main-nav"><a ng-href="/">Home</a></li>
+        <li ng-class="{active:isActive('/login')}" data-toggle="collapse" data-target="#main-nav" ng-show="loggedUser"><a ng-href="/logout">Log Out</a></li>
+        <li ng-class="{active:isActive('/login')}" data-toggle="collapse" data-target="#main-nav" ng-hide="loggedUser"><a ng-href="/login" ng-hide="app.LoggedIn">Login</a></li>
+        <li ng-class="{active:isActive('/signup')}" data-toggle="collapse" data-target="#main-nav" ng-hide="loggedUser"><a ng-href="/signup">Sign Up</a></li>
       </ul>
     </div>
   </div>
@@ -96,9 +97,10 @@
     <!-- build:js({.tmp,app}) scripts/scripts.js -->
     <script src="scripts/app.js"></script>
     <script src="scripts/controllers/main.js"></script>
+    <script src="scripts/controllers/auth.js"></script>
     <script src="scripts/controllers/login.js"></script>
     <script src="scripts/controllers/signup.js"></script>
-    <script src="scripts/oauth.js"></script>
+    <script src="scripts/services.js"></script>
     <!-- endbuild -->
 </body>
 </html>
