@@ -29,6 +29,7 @@ app.factory('UserServices', ['Auth', '$cookieStore', '$rootScope', '$http', '$lo
 
     return {
         login: function(username,password) {
+            toggleWorking(); // activate overlay
             if(!username || !password) {
               if($cookieStore.get('authdata')) {
                 $http.get(FLIK.apiBaseUrl + 'api/users').
@@ -51,6 +52,7 @@ app.factory('UserServices', ['Auth', '$cookieStore', '$rootScope', '$http', '$lo
               Auth.setCredentials(FLIK.username(username),password);
               this.login();
             }
+            toggleWorking(); // deactivate overlay
           },
         logout: function() {
             Auth.clearCredentials();

@@ -23,6 +23,10 @@ app.config(function ($routeProvider, $locationProvider) {
         templateUrl: 'views/signup.html',
         controller: 'SignupCtrl'
       })
+      .when('/entry', {
+        templateUrl: 'views/time.html',
+        controller: 'TimeCtrl'
+      })
       .otherwise({
         redirectTo: '/login'
       });
