@@ -29,7 +29,6 @@ app.factory('UserServices', ['Auth', '$cookieStore', '$rootScope', '$http', '$lo
 
     return {
         login: function(username,password) {
-            toggleWorking(); // activate overlay
             if(!username || !password) {
               if($cookieStore.get('authdata')) {
                 $http.get(FLIK.apiBaseUrl + 'api/users').
@@ -39,11 +38,14 @@ app.factory('UserServices', ['Auth', '$cookieStore', '$rootScope', '$http', '$lo
                     $rootScope.loggedUser = true;
 
                     // Redirect to home
-                    $location.path('/');
+                    var currentLoc = $location.path();
+                    if(currentLoc === '/login' || currentLoc === '/signup') {
+                      $location.path('/');
+                    }
                   }).
                   error(function(status) {
                     $location.path('/login');
-                    console.log('status: ' + status + ' / ' + Auth.readCredentials());
+                    console.log(status);
                   });
               } else {
                 $location.path('/login');
@@ -52,7 +54,6 @@ app.factory('UserServices', ['Auth', '$cookieStore', '$rootScope', '$http', '$lo
               Auth.setCredentials(FLIK.username(username),password);
               this.login();
             }
-            toggleWorking(); // deactivate overlay
           },
         logout: function() {
             Auth.clearCredentials();

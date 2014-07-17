@@ -23,7 +23,7 @@ app.config(function ($routeProvider, $locationProvider) {
         templateUrl: 'views/signup.html',
         controller: 'SignupCtrl'
       })
-      .when('/entry', {
+      .when('/time', {
         templateUrl: 'views/time.html',
         controller: 'TimeCtrl'
       })
@@ -46,7 +46,7 @@ app.run(function ($rootScope, $location, $cookieStore, UserServices) {
 
   $rootScope.$on( '$routeChangeStart', function(event, next) {
 
-    if (!$rootScope.loggedUser) {
+    if (!$rootScope.loggedUser && !$cookieStore.get('authdata')) {
       if ( next.templateUrl !== 'views/login.html' && next.templateUrl !== 'views/signup.html' ) {
         $location.path( '/login' );
       }

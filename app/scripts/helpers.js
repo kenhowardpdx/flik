@@ -1,3 +1,7 @@
+'use strict';
+/* global $ */
+/* exported toggleWorking */
+
 var updateThings = function() {
   $('.work-indicator').each(function() {
     var container = $(this),
@@ -5,7 +9,7 @@ var updateThings = function() {
 
     container.height(winHeight);
   });
-}
+};
 
 updateThings(); // On load
 $(window).on('resize',updateThings); // On resize
@@ -14,4 +18,4 @@ $(window).on('resize',updateThings); // On resize
 // and is hidden when results are displayed.
 var toggleWorking = function() {
   $('.work-indicator').toggleClass('working');
-}
+};

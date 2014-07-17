@@ -9,5 +9,7 @@
  */
 angular.module('citrusApp')
   .controller('TimeCtrl', function ($scope) {
-
+    if($scope) {
+      // just a place holder
+    }
   });
