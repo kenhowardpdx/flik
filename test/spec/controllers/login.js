@@ -3,7 +3,7 @@
 describe('Controller: LoginCtrl', function () {
 
   // load the controller's module
-  beforeEach(module('citrusApp'));
+  beforeEach(module('app'));
 
   var LoginCtrl,
     scope;

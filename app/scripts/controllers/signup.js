@@ -1,7 +1,7 @@
 'use strict';
 /* global flik: true */
 
-angular.module('citrusApp')
+angular.module('app')
   .controller('SignupCtrl', function ($rootScope, $scope, $http, UserServices) {
 
     var newUser = {

@@ -7,7 +7,7 @@
  * # TimeCtrl
  * Controller of the citrusApp
  */
-angular.module('citrusApp')
+angular.module('app')
   .controller('TimeCtrl', function ($scope) {
     if($scope) {
       // just a place holder

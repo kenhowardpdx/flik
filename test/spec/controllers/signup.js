@@ -3,7 +3,7 @@
 describe('Controller: SignupCtrl', function () {
 
   // load the controller's module
-  beforeEach(module('citrusApp'));
+  beforeEach(module('app'));
 
   var SignupCtrl,
     scope;
