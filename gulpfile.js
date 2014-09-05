@@ -22,7 +22,7 @@ gulp.task('templates',function(){
 });
 
 gulp.task('css', function(){
-    gulp.src('./app/less/site.less')
+    gulp.src('./app/less/app.less')
         .pipe(plugins.less())
         .pipe(plugins.concat('app.css'))
         .pipe(gulp.dest('./build'));
