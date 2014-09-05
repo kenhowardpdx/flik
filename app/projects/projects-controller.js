@@ -13,5 +13,25 @@
 		error(function(status) {
 			console.log(status);
 		});
+
+		$scope.deleteRecord = function($index) {
+			var data = $scope.projects[$index];
+			var id = data.ProjectId;
+			if (id) {
+				// Delete record
+				// TODO: Handle confirmation messages with Angular/Bootstrap.
+				if(confirm('Are you sure?')) {
+					$http.delete(CONFIG.API_URL + 'api/projects/' + id)
+					.success(function(data) {
+						// TODO: Animate item removed...
+						$scope.projects.splice($index,1);
+					})
+					.error(function(status) {
+						toaster.pop('error', 'Unable to delete');
+					});
+				}
+			}
+		};
+
 	}]);
 })();
