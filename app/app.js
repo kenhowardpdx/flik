@@ -30,6 +30,11 @@
         controller: 'TimeCtrl',
         title: 'Time Entry'
       })
+      .when('/projects', {
+          templateUrl: 'projects/projects.html',
+          controller: 'ProjectsCtrl',
+          title: 'Projects'
+      })
       .otherwise({
         redirectTo: '/login'
       });
