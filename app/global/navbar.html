@@ -11,16 +11,16 @@
     </div>
     <div class="collapse navbar-collapse" collapse="isCollapsed" id="main-nav">
       <ul class="nav navbar-nav">
-        <li ng-class="{active:isActive('/')}" data-toggle="collapse" data-target="#main-nav"><a href="#">Home</a></li>
-        <li ng-class="{active:isActive('/login')}" data-toggle="collapse" data-target="#main-nav" ng-show="loggedUser"><a href="#logout">Log Out</a></li>
-        <li ng-class="{active:isActive('/login')}" data-toggle="collapse" data-target="#main-nav" ng-hide="loggedUser"><a href="#login" ng-hide="app.LoggedIn">Login</a></li>
-        <li ng-class="{active:isActive('/signup')}" data-toggle="collapse" data-target="#main-nav" ng-hide="loggedUser"><a href="#signup">Sign Up</a></li>
+        <li ng-class="{active:isActive(['home'])}" data-toggle="collapse" data-target="#main-nav"><a href="#">Home</a></li>
+        <li ng-class="{active:isActive(['login'])}" data-toggle="collapse" data-target="#main-nav" ng-show="loggedUser"><a href="#logout">Log Out</a></li>
+        <li ng-class="{active:isActive(['login'])}" data-toggle="collapse" data-target="#main-nav" ng-hide="loggedUser"><a href="#login" ng-hide="app.LoggedIn">Login</a></li>
+        <li ng-class="{active:isActive(['signup'])}" data-toggle="collapse" data-target="#main-nav" ng-hide="loggedUser"><a href="#signup">Sign Up</a></li>
     </ul>
-		<div class="navbar-collapse collapse" collapse="isCollapsed">
-			<div class="navbar-form navbar-right">
-				<a type="button" class="btn btn-info" ng-show="loggedUser" href="#time" ng-class="{active:isActive('/time')}"><span class="sr-only">Add Time</span><span class="glyphicon glyphicon-plus"></span></a>
-			</div>
-		</div>
+
+	<ul class="nav navbar-nav navbar-right">
+        <li><a ng-show="loggedUser" href="#projects" ng-class="{active:isActive(['projects','project'])}"><span class="sr-only">Projects</span><span class="glyphicon glyphicon-briefcase"></span></a></li>
+		<li><a ng-show="loggedUser" href="#time" ng-class="{active:isActive(['time'])}"><span class="sr-only">Add Time</span><span class="glyphicon glyphicon-time"></span></a></li>
+	</ul>
     </div>
   </div>
 </nav>
