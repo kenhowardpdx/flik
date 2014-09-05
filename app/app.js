@@ -35,6 +35,16 @@
           controller: 'ProjectsCtrl',
           title: 'Projects'
       })
+      .when('/project/add', {
+          templateUrl: 'projects/project-edit.html',
+          controller: 'ProjectCtrl',
+          title: 'Create Project'
+      })
+      .when('/project/edit/:projectId', {
+          templateUrl: 'projects/project-edit.html',
+          controller: 'ProjectCtrl',
+          title: 'Edit Project'
+      })
       .otherwise({
         redirectTo: '/login'
       });

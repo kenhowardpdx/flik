@@ -18,8 +18,8 @@
     </ul>
 
 	<ul class="nav navbar-nav navbar-right">
-        <li><a ng-show="loggedUser" href="#projects" ng-class="{active:isActive(['projects','project'])}"><span class="sr-only">Projects</span><span class="glyphicon glyphicon-briefcase"></span></a></li>
-		<li><a ng-show="loggedUser" href="#time" ng-class="{active:isActive(['time'])}"><span class="sr-only">Add Time</span><span class="glyphicon glyphicon-time"></span></a></li>
+        <li ng-class="{active:isActive(['projects','project'])}"><a ng-show="loggedUser" href="#projects"><span class="sr-only">Projects</span><span class="glyphicon glyphicon-briefcase"></span></a></li>
+		<li ng-class="{active:isActive(['time'])}"><a ng-show="loggedUser" href="#time"><span class="sr-only">Add Time</span><span class="glyphicon glyphicon-time"></span></a></li>
 	</ul>
     </div>
   </div>

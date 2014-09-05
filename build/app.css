@@ -6166,3 +6166,9 @@ button.close {
 body {
   padding-top: 50px;
 }
+.toolbar {
+  display: block;
+  clear: both;
+  with: 100%;
+  float: none;
+}

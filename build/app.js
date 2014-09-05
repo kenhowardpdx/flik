@@ -30,6 +30,21 @@
         controller: 'TimeCtrl',
         title: 'Time Entry'
       })
+      .when('/projects', {
+          templateUrl: 'projects/projects.html',
+          controller: 'ProjectsCtrl',
+          title: 'Projects'
+      })
+      .when('/project/add', {
+          templateUrl: 'projects/project-edit.html',
+          controller: 'ProjectCtrl',
+          title: 'Create Project'
+      })
+      .when('/project/edit/:projectId', {
+          templateUrl: 'projects/project-edit.html',
+          controller: 'ProjectCtrl',
+          title: 'Edit Project'
+      })
       .otherwise({
         redirectTo: '/login'
       });
@@ -96,8 +111,15 @@
 
 angular.module('app')
     .controller('NavCtrl', function ($scope, $location) {
-        $scope.isActive = function(route) {
-            return route === $location.path();
+
+        $scope.isActive = function (r) {
+            var routes = r.join('|'),
+                regexStr = '^\/(' + routes + ')',
+                path = new RegExp(regexStr);
+            if(r[0] === 'home' && $location.path() === '/') {
+                return true;
+            }
+            return path.test($location.path());
         };
 
   		$scope.isCollapsed = true;
@@ -122,6 +144,76 @@ angular.module('app')
 	angular.module('app')
 		.controller('MainCtrl', [function () {
 		}]);
+})();
+
+(function(){
+
+angular.module('app')
+	.controller('ProjectCtrl', ['$scope','$location','$routeParams','$http','toaster','CONFIG', function ($scope, $location, $routeParams, $http, toaster, CONFIG) {
+	// Do awesome things
+
+	$scope.projectId = $routeParams.projectId;
+
+	if($scope.projectId) {
+		// Get record
+		$http.get(CONFIG.API_URL + 'api/projects/' + $scope.projectId)
+		.success(function(data) {
+			$scope.project = data;
+		})
+		.error(function(data) {
+			toaster.pop('error', 'Something went horribly wrong');
+		});
+	} else {
+		// Create empty record
+		$scope.project = {};
+	}
+
+	$scope.saveRecord = function() {
+		var data = $scope.project;
+		var id = $scope.projectId;
+		if (id) {
+			// Update record
+			$http.put(CONFIG.API_URL + 'api/projects/' + id, data)
+			.success(function(data) {
+				toaster.pop('success','Updated Project');
+				$location.url('/projects');
+			})
+			.error(function(status) {
+				toaster.pop('error', 'Something went horribly wrong');
+			});
+		} else {
+			// Add record
+			$http.post(CONFIG.API_URL + 'api/projects', data)
+			.success(function(data){
+				toaster.pop('success','Created Project');
+				$location.url('/projects');
+			})
+			.error(function(status){
+				toaster.pop('error', 'Something went horribly wrong');
+			});
+		}
+	};
+
+
+	}]);
+})();
+
+(function() {
+	'use strict';
+
+	angular.module('app')
+	.controller('ProjectsCtrl', ['$scope','$http','CONFIG', function ($scope,$http,CONFIG) {
+		// Do awesome stuff
+
+		// Get the list of projects for this user
+		$http.get(CONFIG.API_URL + 'api/projects').
+		success(function(data) {
+			$scope.projects = data;
+		}).
+		error(function(status) {
+			console.log(status);
+		});
+	}]);
 })();
 
 (function() {
