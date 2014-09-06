@@ -107,24 +107,6 @@
     });
 })();
 
-'use strict';
-
-angular.module('app')
-    .controller('NavCtrl', function ($scope, $location) {
-
-        $scope.isActive = function (r) {
-            var routes = r.join('|'),
-                regexStr = '^\/(' + routes + ')',
-                path = new RegExp(regexStr);
-            if(r[0] === 'home' && $location.path() === '/') {
-                return true;
-            }
-            return path.test($location.path());
-        };
-
-  		$scope.isCollapsed = true;
-    });
-
 (function() {
     'use strict';
 
@@ -146,56 +128,77 @@ angular.module('app')
 		}]);
 })();
 
+(function() {
+    'use strict';
+
+    angular.module('app')
+        .controller('NavCtrl', function ($scope, $location) {
+
+            $scope.isActive = function (r) {
+                var routes = r.join('|'),
+                    regexStr = '^\/(' + routes + ')',
+                    path = new RegExp(regexStr);
+                if(r[0] === 'home' && $location.path() === '/') {
+                    return true;
+                }
+                return path.test($location.path());
+            };
+
+      		$scope.isCollapsed = true;
+        });
+})();
+
 (function(){
+	'use strict';
 
-angular.module('app')
-	.controller('ProjectCtrl', ['$scope','$location','$routeParams','$http','toaster','CONFIG', function ($scope, $location, $routeParams, $http, toaster, CONFIG) {
-	// Do awesome things
+	angular.module('app')
+		.controller('ProjectCtrl', ['$scope','$location','$routeParams','$http','toaster','CONFIG', function ($scope, $location, $routeParams, $http, toaster, CONFIG) {
+		// Do awesome things
 
-	$scope.projectId = $routeParams.projectId;
+		$scope.projectId = $routeParams.projectId;
 
-	if($scope.projectId) {
-		// Get record
-		$http.get(CONFIG.API_URL + 'api/projects/' + $scope.projectId)
-		.success(function(data) {
-			$scope.project = data;
-		})
-		.error(function(data) {
-			toaster.pop('error', 'Something went horribly wrong');
-		});
-	} else {
-		// Create empty record
-		$scope.project = {};
-	}
-
-	$scope.saveRecord = function() {
-		var data = $scope.project;
-		var id = $scope.projectId;
-		if (id) {
-			// Update record
-			$http.put(CONFIG.API_URL + 'api/projects/' + id, data)
+		if($scope.projectId) {
+			// Get record
+			$http.get(CONFIG.API_URL + 'api/projects/' + $scope.projectId)
 			.success(function(data) {
-				toaster.pop('success','Updated Project');
-				$location.url('/projects');
+				$scope.project = data;
 			})
-			.error(function(status) {
+			.error(function() {
 				toaster.pop('error', 'Something went horribly wrong');
 			});
 		} else {
-			// Add record
-			$http.post(CONFIG.API_URL + 'api/projects', data)
-			.success(function(data){
-				toaster.pop('success','Created Project');
-				$location.url('/projects');
-			})
-			.error(function(status){
-				toaster.pop('error', 'Something went horribly wrong');
-			});
+			// Create empty record
+			$scope.project = {};
 		}
-	};
+
+		$scope.saveRecord = function() {
+			var data = $scope.project;
+			var id = $scope.projectId;
+			if (id) {
+				// Update record
+				$http.put(CONFIG.API_URL + 'api/projects/' + id, data)
+				.success(function() {
+					toaster.pop('success','Updated Project');
+					$location.url('/projects');
+				})
+				.error(function() {
+					toaster.pop('error', 'Something went horribly wrong');
+				});
+			} else {
+				// Add record
+				$http.post(CONFIG.API_URL + 'api/projects', data)
+				.success(function(){
+					toaster.pop('success','Created Project');
+					$location.url('/projects');
+				})
+				.error(function(){
+					toaster.pop('error', 'Something went horribly wrong');
+				});
+			}
+		};
 
 
-	}]);
+		}]);
 })();
 
 (function() {
@@ -222,11 +225,11 @@ angular.module('app')
 				// TODO: Handle confirmation messages with Angular/Bootstrap.
 				if(confirm('Are you sure?')) {
 					$http.delete(CONFIG.API_URL + 'api/projects/' + id)
-					.success(function(data) {
+					.success(function() {
 						// TODO: Animate item removed...
 						$scope.projects.splice($index,1);
 					})
-					.error(function(status) {
+					.error(function() {
 						toaster.pop('error', 'Unable to delete');
 					});
 				}
@@ -465,11 +468,13 @@ angular.module('app')
         }]);
 })();
 
-'use strict';
+(function() {
+    'use strict';
 
-angular.module('app')
-  .controller('TimeCtrl', function ($scope) {
-    if($scope) {
-      // just a place holder
-    }
-  });
+    angular.module('app')
+      .controller('TimeCtrl', function ($scope) {
+        if($scope) {
+          // just a place holder
+        }
+      });
+})();

@@ -22,11 +22,11 @@
 				// TODO: Handle confirmation messages with Angular/Bootstrap.
 				if(confirm('Are you sure?')) {
 					$http.delete(CONFIG.API_URL + 'api/projects/' + id)
-					.success(function(data) {
+					.success(function() {
 						// TODO: Animate item removed...
 						$scope.projects.splice($index,1);
 					})
-					.error(function(status) {
+					.error(function() {
 						toaster.pop('error', 'Unable to delete');
 					});
 				}
