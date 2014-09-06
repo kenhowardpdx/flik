@@ -1,0 +1,15 @@
+{
+  "curly":true,
+  "browser":true,
+  "devel":true,
+  "eqeqeq": true,
+  "globals":{
+    "angular": true,
+	"toaster": true
+  },
+  "indent":2,
+  "strict": true,
+  "trailing": true,
+  "undef":true,
+  "unused":true
+}
