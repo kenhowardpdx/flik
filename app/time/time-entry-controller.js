@@ -2,14 +2,14 @@
 	'use strict';
 
 	angular.module('app')
-		.controller('TimeEntryCtrl', ['$scope','$http','CONFIG','toaster', function ($scope, $http, CONFIG, toaster) {
+		.controller('TimeEntryCtrl', ['$scope','$http','$location','CONFIG','toaster', function ($scope, $http, $location, CONFIG, toaster) {
 			// Load list of projects for select list
 			$http.get(CONFIG.API_URL + 'api/projects')
 			.success(function(data) {
 				$scope.availableProjects = data;
 			})
 			.error(function() {
-				toast.pop('error', 'Something went horribly wrong');
+				toaster.pop('error', 'Something went horribly wrong');
 			});
 
 			if($scope.entryId) {

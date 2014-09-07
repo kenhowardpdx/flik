@@ -49,7 +49,7 @@
 						data.Billable = true;
 						data.RequireComment = true;
 						$http.post(CONFIG.API_URL + 'api/projecttasks', data)
-						.success(function(res) {
+						.success(function() {
 							toaster.pop('success','Created Project');
 							$location.url('/projects');
 						})

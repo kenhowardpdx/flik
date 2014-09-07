@@ -14,6 +14,26 @@
 			console.log(status);
 		});
 
+		var deleteRole = function (roleId) {
+			$http.delete(CONFIG.API_URL + 'api/projectroles/' + roleId)
+				.success(function() {
+					return true;
+				})
+				.error(function() {
+					return false;
+				});
+		};
+
+		var deleteTask = function (taskId) {
+			$http.delete(CONFIG.API_URL + 'api/projecttasks/' + taskId)
+				.success(function() {
+					return true;
+				})
+				.error(function() {
+					return false;
+				});
+		};
+
 		$scope.deleteRecord = function($index) {
 			var data = $scope.projects[$index];
 			var id = data.ProjectId;
@@ -24,33 +44,16 @@
 					$http.get(CONFIG.API_URL + 'api/projects/' + id)
 					.success(function(res) {
 						var fail = 0;
+						var i = 0;
 						if (res.ProjectRoles.length > 0) {
-							for (var i = 0; i < res.ProjectRoles.length; i++) {
-								$http.delete(CONFIG.API_URL + 'api/projectroles/' + res.ProjectRoles[i].ProjectRoleId)
-								.success(function() {
-									fail = (fail) ? fail - 1 : 0;
-								})
-								.error(function(res) {
-									console.log(res);
-									fail = fail + 1;
-								});
+							for (i = 0; i < res.ProjectRoles.length; i++) {
+								fail = (!deleteRole(res.ProjectRoles[i].ProjectRoleId)) ? fail + 1 : fail;
 							}
-						} else {
-							fail = (fail) ? fail - 1 : 0;
 						}
 						if (res.ProjectTasks.length > 0) {
-							for (var i = 0; i < res.ProjectTasks.length; i++) {
-								$http.delete(CONFIG.API_URL + 'api/projecttasks/' + res.ProjectTasks[i].ProjectTaskId)
-								.success(function() {
-									fail = (fail) ? fail - 1 : 0;
-								})
-								.error(function(res) {
-									console.log(res);
-									fail = fail + 1;
-								});
+							for (i = 0; i < res.ProjectTasks.length; i++) {
+								fail = (!deleteTask(res.ProjectTasks[i].ProjectTaskId)) ? fail + 1 : fail;
 							}
-						} else {
-							fail = (fail) ? fail - 1 : 0;
 						}
 						if (!fail) {
 							$http.delete(CONFIG.API_URL + 'api/projects/' + id)

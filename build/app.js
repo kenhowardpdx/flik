@@ -147,6 +147,13 @@
 })();
 
 (function() {
+	'use strict';
+	angular.module('app')
+		.controller('MainCtrl', [function () {
+		}]);
+})();
+
+(function() {
     'use strict';
 
     angular.module('app')
@@ -164,13 +171,6 @@
 
       		$scope.isCollapsed = true;
         });
-})();
-
-(function() {
-	'use strict';
-	angular.module('app')
-		.controller('MainCtrl', [function () {
-		}]);
 })();
 
 (function(){
@@ -224,7 +224,7 @@
 						data.Billable = true;
 						data.RequireComment = true;
 						$http.post(CONFIG.API_URL + 'api/projecttasks', data)
-						.success(function(res) {
+						.success(function() {
 							toaster.pop('success','Created Project');
 							$location.url('/projects');
 						})
@@ -265,6 +265,26 @@
 			console.log(status);
 		});
 
+		var deleteRole = function (roleId) {
+			$http.delete(CONFIG.API_URL + 'api/projectroles/' + roleId)
+				.success(function() {
+					return true;
+				})
+				.error(function() {
+					return false;
+				});
+		};
+
+		var deleteTask = function (taskId) {
+			$http.delete(CONFIG.API_URL + 'api/projecttasks/' + taskId)
+				.success(function() {
+					return true;
+				})
+				.error(function() {
+					return false;
+				});
+		};
+
 		$scope.deleteRecord = function($index) {
 			var data = $scope.projects[$index];
 			var id = data.ProjectId;
@@ -275,33 +295,16 @@
 					$http.get(CONFIG.API_URL + 'api/projects/' + id)
 					.success(function(res) {
 						var fail = 0;
+						var i = 0;
 						if (res.ProjectRoles.length > 0) {
-							for (var i = 0; i < res.ProjectRoles.length; i++) {
-								$http.delete(CONFIG.API_URL + 'api/projectroles/' + res.ProjectRoles[i].ProjectRoleId)
-								.success(function() {
-									fail = (fail) ? fail - 1 : 0;
-								})
-								.error(function(res) {
-									console.log(res);
-									fail = fail + 1;
-								});
+							for (i = 0; i < res.ProjectRoles.length; i++) {
+								fail = (!deleteRole(res.ProjectRoles[i].ProjectRoleId)) ? fail + 1 : fail;
 							}
-						} else {
-							fail = (fail) ? fail - 1 : 0;
 						}
 						if (res.ProjectTasks.length > 0) {
-							for (var i = 0; i < res.ProjectTasks.length; i++) {
-								$http.delete(CONFIG.API_URL + 'api/projecttasks/' + res.ProjectTasks[i].ProjectTaskId)
-								.success(function() {
-									fail = (fail) ? fail - 1 : 0;
-								})
-								.error(function(res) {
-									console.log(res);
-									fail = fail + 1;
-								});
+							for (i = 0; i < res.ProjectTasks.length; i++) {
+								fail = (!deleteTask(res.ProjectTasks[i].ProjectTaskId)) ? fail + 1 : fail;
 							}
-						} else {
-							fail = (fail) ? fail - 1 : 0;
 						}
 						if (!fail) {
 							$http.delete(CONFIG.API_URL + 'api/projects/' + id)
@@ -601,14 +604,14 @@
 	'use strict';
 
 	angular.module('app')
-		.controller('TimeEntryCtrl', ['$scope','$http','CONFIG','toaster', function ($scope, $http, CONFIG, toaster) {
+		.controller('TimeEntryCtrl', ['$scope','$http','$location','CONFIG','toaster', function ($scope, $http, $location, CONFIG, toaster) {
 			// Load list of projects for select list
 			$http.get(CONFIG.API_URL + 'api/projects')
 			.success(function(data) {
 				$scope.availableProjects = data;
 			})
 			.error(function() {
-				toast.pop('error', 'Something went horribly wrong');
+				toaster.pop('error', 'Something went horribly wrong');
 			});
 
 			if($scope.entryId) {
