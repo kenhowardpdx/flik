@@ -133,13 +133,6 @@
 })();
 
 (function() {
-	'use strict';
-	angular.module('app')
-		.controller('MainCtrl', [function () {
-		}]);
-})();
-
-(function() {
     'use strict';
 
     angular.module('login-logout', [])
@@ -151,6 +144,13 @@
       .controller('LogOutCtrl', function ($scope, UserServices) {
         UserServices.logout();
       });
+})();
+
+(function() {
+	'use strict';
+	angular.module('app')
+		.controller('MainCtrl', [function () {
+		}]);
 })();
 
 (function() {
@@ -171,6 +171,157 @@
 
       		$scope.isCollapsed = true;
         });
+})();
+
+(function(){
+	'use strict';
+
+	angular.module('app')
+		.controller('ProjectCtrl', ['$scope','$location','$routeParams','$http','toaster','CONFIG', function ($scope, $location, $routeParams, $http, toaster, CONFIG) {
+		// Do awesome things
+
+		$scope.projectId = $routeParams.projectId;
+
+		if($scope.projectId) {
+			// Get record
+			$http.get(CONFIG.API_URL + 'api/projects/' + $scope.projectId)
+			.success(function(data) {
+				$scope.project = data;
+			})
+			.error(function() {
+				toaster.pop('error', 'Something went horribly wrong');
+			});
+		} else {
+			// Create empty record
+			$scope.project = {};
+		}
+
+		$scope.saveRecord = function() {
+			var data = $scope.project;
+			var id = $scope.projectId;
+			if (id) {
+				// Update record
+				$http.put(CONFIG.API_URL + 'api/projects/' + id, data)
+				.success(function() {
+					toaster.pop('success','Updated Project');
+					$location.url('/projects');
+				})
+				.error(function() {
+					toaster.pop('error', 'Something went horribly wrong');
+				});
+			} else {
+				// Add record
+				$http.post(CONFIG.API_URL + 'api/projects', data)
+				.success(function(res){
+					var data = {
+						ProjectId: res.ProjectId,
+						Name: 'default'
+					};
+
+					$http.post(CONFIG.API_URL + 'api/projectroles', data)
+					.success(function(res) {
+						data.ProjectRoleId = res.ProjectRoleId;
+						data.Billable = true;
+						data.RequireComment = true;
+						$http.post(CONFIG.API_URL + 'api/projecttasks', data)
+						.success(function(res) {
+							toaster.pop('success','Created Project');
+							$location.url('/projects');
+						})
+						.error(function() {
+							$http.delete(CONFIG.API_URL + 'api/projectroles/' + data.ProjectRoleId);
+							$http.delete(CONFIG.API_URL + 'api/projects/' + data.ProjectId);
+							toaster.pop('error', 'Unable to create default project task');
+						});
+					})
+					.error(function() {
+						$http.delete(CONFIG.API_URL + 'api/projects/' + data.ProjectId);
+						toaster.pop('error', 'Unable to create deault project role');
+					});
+				})
+				.error(function(){
+					toaster.pop('error', 'Something went horribly wrong');
+				});
+			}
+		};
+
+
+		}]);
+})();
+
+(function() {
+	'use strict';
+
+	angular.module('app')
+	.controller('ProjectsCtrl', ['$scope','$http','CONFIG','toaster', function ($scope,$http,CONFIG,toaster) {
+		// Do awesome stuff
+
+		// Get the list of projects for this user
+		$http.get(CONFIG.API_URL + 'api/projects').
+		success(function(res) {
+			$scope.projects = res;
+		}).
+		error(function(status) {
+			console.log(status);
+		});
+
+		$scope.deleteRecord = function($index) {
+			var data = $scope.projects[$index];
+			var id = data.ProjectId;
+			if (id) {
+				// Delete record
+				// TODO: Handle confirmation messages with Angular/Bootstrap.
+				if(confirm('Are you sure?')) {
+					$http.get(CONFIG.API_URL + 'api/projects/' + id)
+					.success(function(res) {
+						var fail = 0;
+						if (res.ProjectRoles.length > 0) {
+							for (var i = 0; i < res.ProjectRoles.length; i++) {
+								$http.delete(CONFIG.API_URL + 'api/projectroles/' + res.ProjectRoles[i].ProjectRoleId)
+								.success(function() {
+									fail = (fail) ? fail - 1 : 0;
+								})
+								.error(function(res) {
+									console.log(res);
+									fail = fail + 1;
+								});
+							}
+						} else {
+							fail = (fail) ? fail - 1 : 0;
+						}
+						if (res.ProjectTasks.length > 0) {
+							for (var i = 0; i < res.ProjectTasks.length; i++) {
+								$http.delete(CONFIG.API_URL + 'api/projecttasks/' + res.ProjectTasks[i].ProjectTaskId)
+								.success(function() {
+									fail = (fail) ? fail - 1 : 0;
+								})
+								.error(function(res) {
+									console.log(res);
+									fail = fail + 1;
+								});
+							}
+						} else {
+							fail = (fail) ? fail - 1 : 0;
+						}
+						if (!fail) {
+							$http.delete(CONFIG.API_URL + 'api/projects/' + id)
+							.success(function() {
+								// TODO: Animate item removed...
+								$scope.projects.splice($index,1);
+							})
+							.error(function(res) {
+								console.log(res);
+								toaster.pop('error', 'Something went horribly wrong');
+							});
+						} else {
+							toaster.pop('error', 'Something went horribly wrong');
+						}
+					});
+				}
+			}
+		};
+
+	}]);
 })();
 
 (function() {
@@ -359,250 +510,6 @@
 	}]);
 })();
 
-(function(){
-	'use strict';
-
-	angular.module('app')
-		.controller('ProjectCtrl', ['$scope','$location','$routeParams','$http','toaster','CONFIG', function ($scope, $location, $routeParams, $http, toaster, CONFIG) {
-		// Do awesome things
-
-		$scope.projectId = $routeParams.projectId;
-
-		if($scope.projectId) {
-			// Get record
-			$http.get(CONFIG.API_URL + 'api/projects/' + $scope.projectId)
-			.success(function(data) {
-				$scope.project = data;
-			})
-			.error(function() {
-				toaster.pop('error', 'Something went horribly wrong');
-			});
-		} else {
-			// Create empty record
-			$scope.project = {};
-		}
-
-		$scope.saveRecord = function() {
-			var data = $scope.project;
-			var id = $scope.projectId;
-			if (id) {
-				// Update record
-				$http.put(CONFIG.API_URL + 'api/projects/' + id, data)
-				.success(function() {
-					toaster.pop('success','Updated Project');
-					$location.url('/projects');
-				})
-				.error(function() {
-					toaster.pop('error', 'Something went horribly wrong');
-				});
-			} else {
-				// Add record
-				$http.post(CONFIG.API_URL + 'api/projects', data)
-				.success(function(res){
-					var data = {
-						ProjectId: res.ProjectId,
-						Name: 'default'
-					};
-
-					$http.post(CONFIG.API_URL + 'api/projectroles', data)
-					.success(function(res) {
-						data.ProjectRoleId = res.ProjectRoleId;
-						data.Billable = true;
-						data.RequireComment = true;
-						$http.post(CONFIG.API_URL + 'api/projecttasks', data)
-						.success(function(res) {
-							toaster.pop('success','Created Project');
-							$location.url('/projects');
-						})
-						.error(function() {
-							$http.delete(CONFIG.API_URL + 'api/projectroles/' + data.ProjectRoleId);
-							$http.delete(CONFIG.API_URL + 'api/projects/' + data.ProjectId);
-							toaster.pop('error', 'Unable to create default project task');
-						});
-					})
-					.error(function() {
-						$http.delete(CONFIG.API_URL + 'api/projects/' + data.ProjectId);
-						toaster.pop('error', 'Unable to create deault project role');
-					});
-				})
-				.error(function(){
-					toaster.pop('error', 'Something went horribly wrong');
-				});
-			}
-		};
-
-
-		}]);
-})();
-
-(function() {
-	'use strict';
-
-	angular.module('app')
-	.controller('ProjectsCtrl', ['$scope','$http','CONFIG','toaster', function ($scope,$http,CONFIG,toaster) {
-		// Do awesome stuff
-
-		// Get the list of projects for this user
-		$http.get(CONFIG.API_URL + 'api/projects').
-		success(function(res) {
-			$scope.projects = res;
-		}).
-		error(function(status) {
-			console.log(status);
-		});
-
-		$scope.deleteRecord = function($index) {
-			var data = $scope.projects[$index];
-			var id = data.ProjectId;
-			if (id) {
-				// Delete record
-				// TODO: Handle confirmation messages with Angular/Bootstrap.
-				if(confirm('Are you sure?')) {
-					$http.get(CONFIG.API_URL + 'api/projects/' + id)
-					.success(function(res) {
-						var fail = 0;
-						if (res.ProjectRoles.length > 0) {
-							for (var i = 0; i < res.ProjectRoles.length; i++) {
-								$http.delete(CONFIG.API_URL + 'api/projectroles/' + res.ProjectRoles[i].ProjectRoleId)
-								.success(function() {
-									fail = (fail) ? fail - 1 : 0;
-								})
-								.error(function(res) {
-									console.log(res);
-									fail = fail + 1;
-								});
-							}
-						} else {
-							fail = (fail) ? fail - 1 : 0;
-						}
-						if (res.ProjectTasks.length > 0) {
-							for (var i = 0; i < res.ProjectTasks.length; i++) {
-								$http.delete(CONFIG.API_URL + 'api/projecttasks/' + res.ProjectTasks[i].ProjectTaskId)
-								.success(function() {
-									fail = (fail) ? fail - 1 : 0;
-								})
-								.error(function(res) {
-									console.log(res);
-									fail = fail + 1;
-								});
-							}
-						} else {
-							fail = (fail) ? fail - 1 : 0;
-						}
-						if (!fail) {
-							$http.delete(CONFIG.API_URL + 'api/projects/' + id)
-							.success(function() {
-								// TODO: Animate item removed...
-								$scope.projects.splice($index,1);
-							})
-							.error(function(res) {
-								console.log(res);
-								toaster.pop('error', 'Something went horribly wrong');
-							});
-						} else {
-							toaster.pop('error', 'Something went horribly wrong');
-						}
-					});
-				}
-			}
-		};
-
-	}]);
-})();
-
-(function() {
-    'use strict';
-
-    angular.module('app')
-        .controller('TimeEntriesCtrl', ['$scope','$http','CONFIG', function ($scope, $http, CONFIG) {
-
-            $scope.timeEntryDate = new Date();
-            $scope.timeEntries = [];
-
-            $scope.previousDate = function () {
-                $scope.timeEntryDate.setDate($scope.timeEntryDate.getDate() - 1);
-                //getTimeEntries();
-            };
-
-            $scope.nextDate = function () {
-                $scope.timeEntryDate.setDate($scope.timeEntryDate.getDate() + 1);
-            };
-
-            var getTimeEntries = function () {
-                // Get the list of time entries
-                $http.get(CONFIG.API_URL + 'api/timeentries/date/' + $scope.timeEntryDate.toString('m-d-yyy')).
-                success(function(data) {
-                	$scope.timeEntries = data;
-                }).
-                error(function(status) {
-                	console.log(status);
-                });
-            };
-
-            getTimeEntries();
-
-
-        }]);
-})();
-
-(function() {
-	'use strict';
-
-	angular.module('app')
-		.controller('TimeEntryCtrl', ['$scope','$http','CONFIG','toaster', function ($scope, $http, CONFIG, toaster) {
-			if($scope.entryId) {
-				$http.get(CONFIG.API_URL + 'api/timeentries/' + $scope.entryId)
-				.success(function(data) {
-					$scope.entry = data;
-				})
-				.error(function() {
-					toaster.pop('error', 'Something went horribly wrong');
-				});
-			} else {
-				$scope.entry = {};
-			}
-
-			$scope.saveRecord = function() {
-				var data = $scope.entry;
-				var id = $scope.entryId;
-				if (id) {
-					// Update record
-					$http.put(CONFIG.API_URL + 'api/timeentries/' + id, data)
-					.success(function() {
-						toaster.pop('success','Updated Time Entry');
-						$location.url('/time');
-					})
-					.error(function() {
-						toaster.pop('error', 'Something went horribly wrong');
-					});
-				} else {
-					// Add record
-					$http.post(CONFIG.API_URL + 'api/timeentries', data)
-					.success(function(){
-						toaster.pop('success','Added Time Entry');
-						$location.url('/time');
-					})
-					.error(function(data){
-						var msg = data.Message;
-						toaster.pop('error', msg);
-					});
-				}
-			};
-
-			// {
-			// "ProjectRoleId": 1,
-			// "ProjectTaskId": 1,
-			// "Billable": true,
-			// "TimeIn": "2014-09-06T23:43:31.3567148+00:00",
-			// "TimeOut": "2014-09-06T23:43:31.3567148+00:00",
-			// "Hours": 1.0,
-			// "Comment": "sample string 2"
-			// }
-
-
-		}]);
-})();
-
 (function() {
     'use strict';
 
@@ -653,4 +560,110 @@
         };
 
         }]);
+})();
+
+(function() {
+    'use strict';
+
+    angular.module('app')
+        .controller('TimeEntriesCtrl', ['$scope','$http','CONFIG', function ($scope, $http, CONFIG) {
+
+            $scope.timeEntryDate = new Date();
+            $scope.timeEntries = [];
+
+            $scope.previousDate = function () {
+                $scope.timeEntryDate.setDate($scope.timeEntryDate.getDate() - 1);
+                //getTimeEntries();
+            };
+
+            $scope.nextDate = function () {
+                $scope.timeEntryDate.setDate($scope.timeEntryDate.getDate() + 1);
+            };
+
+            var getTimeEntries = function () {
+                // Get the list of time entries
+                $http.get(CONFIG.API_URL + 'api/timeentries/date/' + $scope.timeEntryDate.toString('m-d-yyy')).
+                success(function(data) {
+                	$scope.timeEntries = data;
+                }).
+                error(function(status) {
+                	console.log(status);
+                });
+            };
+
+            getTimeEntries();
+
+
+        }]);
+})();
+
+(function() {
+	'use strict';
+
+	angular.module('app')
+		.controller('TimeEntryCtrl', ['$scope','$http','CONFIG','toaster', function ($scope, $http, CONFIG, toaster) {
+			$http.get(CONFIG.API_URL + 'api/projects')
+			.success(function(data) {
+				$scope.availableProjects = data;
+			})
+			.error(function() {
+				toast.pop('error', 'Something went horribly wrong');
+			});
+
+			if($scope.entryId) {
+				$http.get(CONFIG.API_URL + 'api/timeentries/' + $scope.entryId)
+				.success(function(data) {
+					$scope.entry = data;
+				})
+				.error(function() {
+					toaster.pop('error', 'Something went horribly wrong');
+				});
+			} else {
+				$scope.entry = {};
+			}
+
+			$scope.saveRecord = function() {
+				var data = $scope.entry;
+				var id = $scope.entryId;
+				var timestamp = new Date();
+				data.ProjectRoleId = data.Project.ProjectRoles[0].ProjectRoleId;
+				data.ProjectTaskId = data.Project.ProjectTasks[0].ProjectTaskId;
+				if (id) {
+					// Update record
+					$http.put(CONFIG.API_URL + 'api/timeentries/' + id, data)
+					.success(function() {
+						toaster.pop('success','Updated Time Entry');
+						$location.url('/time');
+					})
+					.error(function() {
+						toaster.pop('error', 'Something went horribly wrong');
+					});
+				} else {
+					// Add record
+					data.TimeIn = timestamp.toUTCString();
+					var jsonStr = JSON.stringify(data);
+					$http.post(CONFIG.API_URL + 'api/timeentries', data)
+					.success(function(){
+						toaster.pop('success','Added Time Entry');
+						$location.url('/time');
+					})
+					.error(function(data){
+						var msg = data.Message;
+						toaster.pop('error', msg);
+					});
+				}
+			};
+
+			// {
+			// "ProjectRoleId": 1,
+			// "ProjectTaskId": 1,
+			// "Billable": true,
+			// "TimeIn": "2014-09-06T23:43:31.3567148+00:00",
+			// "TimeOut": "2014-09-06T23:43:31.3567148+00:00",
+			// "Hours": 1.0,
+			// "Comment": "sample string 2"
+			// }
+
+
+		}]);
 })();
