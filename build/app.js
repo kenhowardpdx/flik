@@ -147,13 +147,6 @@
 })();
 
 (function() {
-	'use strict';
-	angular.module('app')
-		.controller('MainCtrl', [function () {
-		}]);
-})();
-
-(function() {
     'use strict';
 
     angular.module('app')
@@ -171,6 +164,13 @@
 
       		$scope.isCollapsed = true;
         });
+})();
+
+(function() {
+	'use strict';
+	angular.module('app')
+		.controller('MainCtrl', [function () {
+		}]);
 })();
 
 (function(){
