@@ -37,9 +37,32 @@
 			} else {
 				// Add record
 				$http.post(CONFIG.API_URL + 'api/projects', data)
-				.success(function(){
-					toaster.pop('success','Created Project');
-					$location.url('/projects');
+				.success(function(res){
+					var data = {
+						ProjectId: res.ProjectId,
+						Name: 'default'
+					};
+
+					$http.post(CONFIG.API_URL + 'api/projectroles', data)
+					.success(function(res) {
+						data.ProjectRoleId = res.ProjectRoleId;
+						data.Billable = true;
+						data.RequireComment = true;
+						$http.post(CONFIG.API_URL + 'api/projecttasks', data)
+						.success(function(res) {
+							toaster.pop('success','Created Project');
+							$location.url('/projects');
+						})
+						.error(function() {
+							$http.delete(CONFIG.API_URL + 'api/projectroles/' + data.ProjectRoleId);
+							$http.delete(CONFIG.API_URL + 'api/projects/' + data.ProjectId);
+							toaster.pop('error', 'Unable to create default project task');
+						});
+					})
+					.error(function() {
+						$http.delete(CONFIG.API_URL + 'api/projects/' + data.ProjectId);
+						toaster.pop('error', 'Unable to create deault project role');
+					});
 				})
 				.error(function(){
 					toaster.pop('error', 'Something went horribly wrong');
