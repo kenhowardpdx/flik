@@ -21,13 +21,9 @@
             Name    : $scope.name,
             Email   : $scope.email,
             TimeZoneId : 'Pacific Standard Time',
-            // UseStopwatchApproachToTimeEntry: false,
-            // ExternalSystemKey : 'this is a string #CITRUS'
+            UseStopwatchApproachToTimeEntry: false,
+            ExternalSystemKey : 'CTRS*'
           };
-
-          // KHTODO: Enable Twitter Registration
-          //OAuth.initialize('IZhywZ2WEaqbWh7-zWYN_VL_acY');
-          //OAuth.redirect('twitter', "/#/");
 
           $http.post(CONFIG.API_URL + 'api/users', newUser).
             success(function(data) {
