@@ -27,8 +27,18 @@
       })
       .when('/time', {
         templateUrl: 'time/time.html',
-        controller: 'TimeCtrl',
-        title: 'Time Entry'
+        controller: 'TimeEntriesCtrl',
+        title: 'Time Entries'
+      })
+      .when('/time/add', {
+          templateUrl: 'time/time-edit.html',
+          controller: 'TimeEntryCtrl',
+          title: 'Add Time'
+      })
+      .when('/time/edit/:entryId', {
+          templateUrl: 'time/time-edit.html',
+          controller: 'TimeEntryCtrl',
+          title: 'Edit Time'
       })
       .when('/projects', {
           templateUrl: 'projects/projects.html',

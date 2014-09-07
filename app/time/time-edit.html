@@ -1,0 +1,19 @@
+<h2>{{ pageTitle }}</h2>
+
+<div class="toolbar row">
+	<div class="pull-right">
+		<button class="btn btn-success btn-sm" ng-click="saveRecord()"><span class="glyphicon glyphicon-save"></span> Save</button>
+		<a class="btn btn-default btn-sm" href="#time"><span class="glyphicon glyphicon-remove"></span> Cancel</a>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-sm-3 form-group">
+		<label for="name">Time:</label>
+		<input type="text" name="time" id="time" ng-model="entry.Hours" class="form-control"  />
+	</div>
+	<div class="col-sm-9 form-group">
+		<label for="comment">Comment:</label>
+		<input type="text" name="comment" id="comment" ng-model="entry.Comment" class="form-control" />
+	</div>
+</div>
