@@ -15,4 +15,12 @@
     angular.module('site-config').constant(value,key);
     // Load config constants
     });
+
+    angular.module('app')
+        .value('cgBusyDefaults',{
+            message:'Please Wait...',
+            backdrop: true,
+            delay: 100,
+            minDuration: 900
+        });
 })();
