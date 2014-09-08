@@ -30,7 +30,7 @@
         controller: 'TimeEntriesCtrl',
         title: 'Time Entries'
       })
-      .when('/time/add', {
+      .when('/time/add/:dateStr', {
           templateUrl: 'time/time-edit.html',
           controller: 'TimeEntryCtrl',
           title: 'Add Time'
@@ -105,15 +105,16 @@
 
     var configData = {
         'CONFIG': {
+            'DEBUG': true,
             'SITE_NAME': 'Citrus',
             'APP_VERSION': '1.0.0',
             'API_URL': 'https://csgprohackathonapi.azurewebsites.net/',
             'USERNAME_PREFIX': 'c*'
-    }
+        }
     };
     angular.forEach(configData, function(key,value) {
-    angular.module('site-config').constant(value,key);
-    // Load config constants
+        angular.module('site-config').constant(value,key);
+        // Load config constants
     });
 
     angular.module('app')
@@ -533,7 +534,8 @@
 					$location.path('/login');
 				}
 				} else {
-					Auth.setCredentials(CONFIG.USERNAME_PREFIX + username,password);
+					username = this.saltUserName(username);
+					Auth.setCredentials(username,password);
 					this.login();
 				}
 			},
@@ -555,6 +557,9 @@
 					UserName: ''
 				};
 				$rootScope.loggedUser = false;
+			},
+			saltUserName: function(username) {
+				return CONFIG.USERNAME_PREFIX + username;
 			}
 		};
 	}]);
@@ -564,50 +569,34 @@
     'use strict';
 
     angular.module('app')
-      .controller('SignupCtrl', ['$rootScope','$scope','$http','UserServices','CONFIG', function ($rootScope, $scope, $http, UserServices, CONFIG) {
+        .controller('SignupCtrl', ['$rootScope','$scope','httpService','UserServices', function ($rootScope, $scope, httpService, UserServices) {
 
-        var newUser = {
-          Username: '',
-          Email: '',
-          Password: '',
-          UserID: null
-        };
+            var newUser = {
+                Username: '',
+                Email: '',
+                Password: '',
+                UserID: null
+            };
 
-        $scope.errors = false; // hides the error panel
+            $scope.errors = false; // hides the error panel
 
-        $scope.createUser = function() {
+            $scope.createUser = function() {
 
-          newUser = {
-            Password: $scope.password,
-            UserName: CONFIG.USERNAME_PREFIX + $scope.username,
-            Name    : $scope.name,
-            Email   : $scope.email,
-            TimeZoneId : 'Pacific Standard Time',
-            UseStopwatchApproachToTimeEntry: false,
-            ExternalSystemKey : 'CTRS*'
-          };
+                newUser = {
+                    Password: $scope.password,
+                    UserName: UserServices.saltUserName($scope.username),
+                    Name    : $scope.name,
+                    Email   : $scope.email,
+                    TimeZoneId : 'Pacific Standard Time',
+                    UseStopwatchApproachToTimeEntry: false,
+                    ExternalSystemKey : 'CTRS*'
+                };
 
-          $http.post(CONFIG.API_URL + 'api/users', newUser).
-            success(function(data) {
-              $rootScope.user = data;
-              UserServices.login($scope.username,$scope.password);
-            }).
-            error(function(data, status) {
-              // called asynchronously if an error occurs
-              // or server returns response with an error status.
-              if(status === 400) {
-
-                // check if the user already exists
-
-                $scope.errors = true;
-                $scope.errorHeading = data.Message;
-                $scope.errorList = data.Errors;
-              } else {
-                console.log('Status != 400');
-                console.log(status);
-              }
-            });
-        };
+                httpService.createItem('users', newUser).then(function(user) {
+                    $rootScope.user = user;
+                    UserServices.login($scope.username,$scope.password);
+                });
+            };
 
         }]);
 })();
@@ -616,28 +605,27 @@
     'use strict';
 
     angular.module('app')
-        .controller('TimeEntriesCtrl', ['$scope','$http','CONFIG', function ($scope, $http, CONFIG) {
+        .controller('TimeEntriesCtrl', ['$scope','httpService', function ($scope, httpService) {
 
             $scope.timeEntryDate = new Date();
             $scope.timeEntries = [];
 
             $scope.previousDate = function () {
                 $scope.timeEntryDate.setDate($scope.timeEntryDate.getDate() - 1);
-                //getTimeEntries();
+                getTimeEntries();
             };
 
             $scope.nextDate = function () {
                 $scope.timeEntryDate.setDate($scope.timeEntryDate.getDate() + 1);
+                getTimeEntries();
             };
 
             var getTimeEntries = function () {
                 // Get the list of time entries
-                $http.get(CONFIG.API_URL + 'api/timeentries/date/' + $scope.timeEntryDate.toString('m-d-yyy')).
-                success(function(data) {
-                	$scope.timeEntries = data;
-                }).
-                error(function(status) {
-                	console.log(status);
+                var date = $scope.timeEntryDate;
+                var dateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
+                httpService.getCollection('timeentries/date/' + dateStr).then(function(entries) {
+                    $scope.timeEntries = entries;
                 });
             };
 
@@ -651,55 +639,43 @@
 	'use strict';
 
 	angular.module('app')
-		.controller('TimeEntryCtrl', ['$scope','$http','$location','CONFIG','toaster', function ($scope, $http, $location, CONFIG, toaster) {
+		.controller('TimeEntryCtrl', ['$scope','httpService','$routeParams','$location','toaster', function ($scope, httpService, $routeParams, $location, toaster) {
+
+			var entry,
+				id = $routeParams.entryId,
+				dateStr = $routeParams.dateStr;
+
+			$scope.timeEntryDate = new Date(dateStr);
+
 			// Load list of projects for select list
-			$http.get(CONFIG.API_URL + 'api/projects')
-			.success(function(data) {
-				$scope.availableProjects = data;
-			})
-			.error(function() {
-				toaster.pop('error', 'Something went horribly wrong');
+			httpService.getCollection('projects').then(function(projects) {
+				$scope.availableProjects = projects;
 			});
 
-			if($scope.entryId) {
-				$http.get(CONFIG.API_URL + 'api/timeentries/' + $scope.entryId)
-				.success(function(data) {
-					$scope.entry = data;
-				})
-				.error(function() {
-					toaster.pop('error', 'Something went horribly wrong');
+			if(id) {
+				httpService.getItem('timeentries',$scope.entryId).then(function(entry) {
+					$scope.entry = entry;
 				});
 			} else {
 				$scope.entry = {};
 			}
 
 			$scope.saveRecord = function() {
-				var data = $scope.entry;
-				var id = $scope.entryId;
-				data.ProjectRoleId = data.Project.ProjectRoles[0].ProjectRoleId;
-				data.ProjectTaskId = data.Project.ProjectTasks[0].ProjectTaskId;
+				entry = $scope.entry;
+				entry.ProjectRoleId = entry.Project.ProjectRoles[0].ProjectRoleId;
+				entry.ProjectTaskId = entry.Project.ProjectTasks[0].ProjectTaskId;
 				if (id) {
 					// Update record
-					$http.put(CONFIG.API_URL + 'api/timeentries/' + id, data)
-					.success(function() {
+					httpService.updateItem('timeentries', id, entry).then(function() {
 						toaster.pop('success','Updated Time Entry');
 						$location.url('/time');
-					})
-					.error(function() {
-						toaster.pop('error', 'Something went horribly wrong');
 					});
 				} else {
 					// Add record
-					var timestamp = new Date();
-					data.TimeIn = timestamp.toUTCString(); // Not sure this is needed.
-					$http.post(CONFIG.API_URL + 'api/timeentries', data)
-					.success(function(){
+					entry.TimeIn = dateStr;
+					httpService.createItem('timeentries', entry).then(function() {
 						toaster.pop('success','Added Time Entry');
 						$location.url('/time');
-					})
-					.error(function(data){
-						var msg = data.Message;
-						toaster.pop('error', msg);
 					});
 				}
 			};
