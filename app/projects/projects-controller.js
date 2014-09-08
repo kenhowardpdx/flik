@@ -2,7 +2,7 @@
 	'use strict';
 
 	angular.module('app')
-	.controller('ProjectsCtrl', ['$scope','httpService', function ($scope,httpService) {
+	.controller('ProjectsCtrl', ['$scope','httpService', function ($scope, httpService) {
 		// Do awesome stuff
 
 		// Get the list of projects for this user
@@ -11,15 +11,11 @@
 		});
 
 		var deleteRole = function (roleId) {
-			httpService.deleteItem('projectroles',roleId).then(function() {
-				return true;
-			});
+			return httpService.deleteItem('projectroles',roleId);
 		};
 
 		var deleteTask = function (taskId) {
-			httpService.deleteItem('projecttasks',taskId).then(function() {
-				return true;
-			});
+			return httpService.deleteItem('projecttasks',taskId);
 		};
 
 		$scope.deleteRecord = function($index) {
