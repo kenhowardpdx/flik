@@ -70,7 +70,7 @@
 				return (request.then(handleSuccess, handleError));
 			}
 
-			function deleteItem(entity,id,data) {
+			function deleteItem(entity,id) {
 
 				var url = baseApiUrl + entity + '/' + id;
 
