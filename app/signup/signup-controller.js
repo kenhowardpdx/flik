@@ -2,50 +2,34 @@
     'use strict';
 
     angular.module('app')
-      .controller('SignupCtrl', ['$rootScope','$scope','$http','UserServices','CONFIG', function ($rootScope, $scope, $http, UserServices, CONFIG) {
+        .controller('SignupCtrl', ['$rootScope','$scope','httpService','UserServices', function ($rootScope, $scope, httpService, UserServices) {
 
-        var newUser = {
-          Username: '',
-          Email: '',
-          Password: '',
-          UserID: null
-        };
+            var newUser = {
+                Username: '',
+                Email: '',
+                Password: '',
+                UserID: null
+            };
 
-        $scope.errors = false; // hides the error panel
+            $scope.errors = false; // hides the error panel
 
-        $scope.createUser = function() {
+            $scope.createUser = function() {
 
-          newUser = {
-            Password: $scope.password,
-            UserName: CONFIG.USERNAME_PREFIX + $scope.username,
-            Name    : $scope.name,
-            Email   : $scope.email,
-            TimeZoneId : 'Pacific Standard Time',
-            UseStopwatchApproachToTimeEntry: false,
-            ExternalSystemKey : 'CTRS*'
-          };
+                newUser = {
+                    Password: $scope.password,
+                    UserName: UserServices.saltUserName($scope.username),
+                    Name    : $scope.name,
+                    Email   : $scope.email,
+                    TimeZoneId : 'Pacific Standard Time',
+                    UseStopwatchApproachToTimeEntry: false,
+                    ExternalSystemKey : 'CTRS*'
+                };
 
-          $http.post(CONFIG.API_URL + 'api/users', newUser).
-            success(function(data) {
-              $rootScope.user = data;
-              UserServices.login($scope.username,$scope.password);
-            }).
-            error(function(data, status) {
-              // called asynchronously if an error occurs
-              // or server returns response with an error status.
-              if(status === 400) {
-
-                // check if the user already exists
-
-                $scope.errors = true;
-                $scope.errorHeading = data.Message;
-                $scope.errorList = data.Errors;
-              } else {
-                console.log('Status != 400');
-                console.log(status);
-              }
-            });
-        };
+                httpService.createItem('users', newUser).then(function(user) {
+                    $rootScope.user = user;
+                    UserServices.login($scope.username,$scope.password);
+                });
+            };
 
         }]);
 })();
