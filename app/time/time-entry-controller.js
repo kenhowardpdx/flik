@@ -2,55 +2,43 @@
 	'use strict';
 
 	angular.module('app')
-		.controller('TimeEntryCtrl', ['$scope','$http','$location','CONFIG','toaster', function ($scope, $http, $location, CONFIG, toaster) {
+		.controller('TimeEntryCtrl', ['$scope','httpService','$routeParams','$location','toaster', function ($scope, httpService, $routeParams, $location, toaster) {
+
+			var entry,
+				id = $routeParams.entryId,
+				dateStr = $routeParams.dateStr;
+
+			$scope.timeEntryDate = new Date(dateStr);
+
 			// Load list of projects for select list
-			$http.get(CONFIG.API_URL + 'api/projects')
-			.success(function(data) {
-				$scope.availableProjects = data;
-			})
-			.error(function() {
-				toaster.pop('error', 'Something went horribly wrong');
+			httpService.getCollection('projects').then(function(projects) {
+				$scope.availableProjects = projects;
 			});
 
-			if($scope.entryId) {
-				$http.get(CONFIG.API_URL + 'api/timeentries/' + $scope.entryId)
-				.success(function(data) {
-					$scope.entry = data;
-				})
-				.error(function() {
-					toaster.pop('error', 'Something went horribly wrong');
+			if(id) {
+				httpService.getItem('timeentries',$scope.entryId).then(function(entry) {
+					$scope.entry = entry;
 				});
 			} else {
 				$scope.entry = {};
 			}
 
 			$scope.saveRecord = function() {
-				var data = $scope.entry;
-				var id = $scope.entryId;
-				data.ProjectRoleId = data.Project.ProjectRoles[0].ProjectRoleId;
-				data.ProjectTaskId = data.Project.ProjectTasks[0].ProjectTaskId;
+				entry = $scope.entry;
+				entry.ProjectRoleId = entry.Project.ProjectRoles[0].ProjectRoleId;
+				entry.ProjectTaskId = entry.Project.ProjectTasks[0].ProjectTaskId;
 				if (id) {
 					// Update record
-					$http.put(CONFIG.API_URL + 'api/timeentries/' + id, data)
-					.success(function() {
+					httpService.updateItem('timeentries', id, entry).then(function() {
 						toaster.pop('success','Updated Time Entry');
 						$location.url('/time');
-					})
-					.error(function() {
-						toaster.pop('error', 'Something went horribly wrong');
 					});
 				} else {
 					// Add record
-					var timestamp = new Date();
-					data.TimeIn = timestamp.toUTCString(); // Not sure this is needed.
-					$http.post(CONFIG.API_URL + 'api/timeentries', data)
-					.success(function(){
+					entry.TimeIn = dateStr;
+					httpService.createItem('timeentries', entry).then(function() {
 						toaster.pop('success','Added Time Entry');
 						$location.url('/time');
-					})
-					.error(function(data){
-						var msg = data.Message;
-						toaster.pop('error', msg);
 					});
 				}
 			};

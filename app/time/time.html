@@ -1,7 +1,7 @@
 <h2>{{ pageTitle }}</h2>
 
 <div class="toolbar">
-    <a class="btn btn-default btn-md" ng-href="#time/add"><span class="glyphicon glyphicon-plus"></span> Add Time</a>
+    <a class="btn btn-default btn-md" ng-href="#time/add/{{timeEntryDate | aDate : 'M-d-y'}}"><span class="glyphicon glyphicon-plus"></span> Add Time</a>
 </div>
 <br />
 <div class="btn-group">
@@ -10,9 +10,10 @@
     <button type="button" class="btn btn-default" ng-click="nextDate()"><span class="glyphicon glyphicon-chevron-right"></span></button>
 </div>
 
-<ul class="timeEntries">
+<ul class="timeEntries nav navbar-vertical">
     <li ng-repeat="entry in timeEntries">
-        <span ng-bind="entry.time"></span>
-        <span ng-bind="entry.details"></span>
+        <div>
+            <span ng-bind="entry.Comment"></span>
+        </div>
     </li>
 </ul>

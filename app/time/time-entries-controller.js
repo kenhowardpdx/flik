@@ -2,28 +2,27 @@
     'use strict';
 
     angular.module('app')
-        .controller('TimeEntriesCtrl', ['$scope','$http','CONFIG', function ($scope, $http, CONFIG) {
+        .controller('TimeEntriesCtrl', ['$scope','httpService', function ($scope, httpService) {
 
             $scope.timeEntryDate = new Date();
             $scope.timeEntries = [];
 
             $scope.previousDate = function () {
                 $scope.timeEntryDate.setDate($scope.timeEntryDate.getDate() - 1);
-                //getTimeEntries();
+                getTimeEntries();
             };
 
             $scope.nextDate = function () {
                 $scope.timeEntryDate.setDate($scope.timeEntryDate.getDate() + 1);
+                getTimeEntries();
             };
 
             var getTimeEntries = function () {
                 // Get the list of time entries
-                $http.get(CONFIG.API_URL + 'api/timeentries/date/' + $scope.timeEntryDate.toString('m-d-yyy')).
-                success(function(data) {
-                	$scope.timeEntries = data;
-                }).
-                error(function(status) {
-                	console.log(status);
+                var date = $scope.timeEntryDate;
+                var dateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
+                httpService.getCollection('timeentries/date/' + dateStr).then(function(entries) {
+                    $scope.timeEntries = entries;
                 });
             };
 
