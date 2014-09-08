@@ -10,11 +10,16 @@
   </head>
   <body>
 
+    <div ng-include="'partials/toaster.html'"></div>
+
     <div ng-include="'navbar/navbar.html'"></div>
 
-    <div class="container" ng-view=""></div>
+    <div cg-busy="loadingData">
 
-    <div ng-include="'partials/toaster.html'"></div>
+        <div class="container" ng-view=""></div>
+
+    </div>
+
     <script src="lib.js"></script>
     <script src="templates.js"></script>
     <script src="app.js"></script>

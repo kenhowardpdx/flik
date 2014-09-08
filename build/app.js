@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    angular.module('app', ['ngCookies','ngRoute', 'ui.bootstrap', 'templates', 'site-config', 'login-logout', 'ngAnimate', 'toaster'])
+    angular.module('app', ['ngCookies','ngRoute', 'ui.bootstrap', 'templates', 'site-config', 'ngAnimate', 'toaster', 'cgBusy'])
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
@@ -115,6 +115,14 @@
     angular.module('site-config').constant(value,key);
     // Load config constants
     });
+
+    angular.module('app')
+        .value('cgBusyDefaults',{
+            message:'Please Wait...',
+            backdrop: true,
+            delay: 100,
+            minDuration: 900
+        });
 })();
 
 (function() {
@@ -135,15 +143,15 @@
 (function() {
     'use strict';
 
-    angular.module('login-logout', [])
-      .controller('LoginCtrl', function ($scope, UserServices) {
-        $scope.login = function(credentials) {
-          UserServices.login(credentials.username,credentials.password);
-        };
-      })
-      .controller('LogOutCtrl', function ($scope, UserServices) {
-        UserServices.logout();
-      });
+    angular.module('app')
+        .controller('LoginCtrl', ['$scope','UserServices', function ($scope, UserServices) {
+            $scope.login = function(credentials) {
+                UserServices.login(credentials.username,credentials.password);
+            };
+        }])
+        .controller('LogOutCtrl', function ($scope, UserServices) {
+            UserServices.logout();
+        });
 })();
 
 (function() {
@@ -253,16 +261,12 @@
 	'use strict';
 
 	angular.module('app')
-	.controller('ProjectsCtrl', ['$scope','$http','CONFIG','toaster', function ($scope,$http,CONFIG,toaster) {
+	.controller('ProjectsCtrl', ['$scope','httpService', function ($scope,httpService) {
 		// Do awesome stuff
 
 		// Get the list of projects for this user
-		$http.get(CONFIG.API_URL + 'api/projects').
-		success(function(res) {
-			$scope.projects = res;
-		}).
-		error(function(status) {
-			console.log(status);
+		httpService.getCollection('projects').then(function(projects) {
+			$scope.projects = projects;
 		});
 
 		var deleteRole = function (roleId) {
@@ -292,33 +296,8 @@
 				// Delete record
 				// TODO: Handle confirmation messages with Angular/Bootstrap.
 				if(confirm('Are you sure?')) {
-					$http.get(CONFIG.API_URL + 'api/projects/' + id)
-					.success(function(res) {
-						var fail = 0;
-						var i = 0;
-						if (res.ProjectRoles.length > 0) {
-							for (i = 0; i < res.ProjectRoles.length; i++) {
-								fail = (!deleteRole(res.ProjectRoles[i].ProjectRoleId)) ? fail + 1 : fail;
-							}
-						}
-						if (res.ProjectTasks.length > 0) {
-							for (i = 0; i < res.ProjectTasks.length; i++) {
-								fail = (!deleteTask(res.ProjectTasks[i].ProjectTaskId)) ? fail + 1 : fail;
-							}
-						}
-						if (!fail) {
-							$http.delete(CONFIG.API_URL + 'api/projects/' + id)
-							.success(function() {
-								// TODO: Animate item removed...
-								$scope.projects.splice($index,1);
-							})
-							.error(function(res) {
-								console.log(res);
-								toaster.pop('error', 'Something went horribly wrong');
-							});
-						} else {
-							toaster.pop('error', 'Something went horribly wrong');
-						}
+					httpService.deleteItem('projects',id).then(function() {
+						$scope.projects.splice($index,1);
 					});
 				}
 			}
@@ -344,20 +323,20 @@
     'use strict';
 
     angular.module('app')
-        .factory('Auth', ['Base64', '$cookieStore', '$http', function (Base64, $cookieStore, $http) {
+        .factory('Auth', ['Base64', '$cookieStore', 'httpService', function (Base64, $cookieStore, httpService) {
             // initialize to whatever is in the cookie, if anything
-            $http.defaults.headers.common.Authorization = 'Basic ' + $cookieStore.get('authdata');
+            httpService.setAuthHeader('Basic ' + $cookieStore.get('authdata'));
 
             return {
                 setCredentials: function (username, password) {
                     var encoded = Base64.encode(username + ':' + password);
-                    $http.defaults.headers.common.Authorization = 'Basic ' + encoded;
+                    httpService.setAuthHeader('Basic ' + encoded);
                     $cookieStore.put('authdata', encoded);
                   },
                 clearCredentials: function () {
                     document.execCommand('ClearAuthenticationCache');
                     $cookieStore.remove('authdata');
-                    $http.defaults.headers.common.Authorization = 'Basic ';
+                    httpService.setAuthHeader('');
                   },
                 readCredentials: function () {
                   var decoded = Base64.decode($cookieStore.get('authdata'));
@@ -457,37 +436,124 @@
 })();
 /* jshint ignore:end */
 
+(function () {
+	'use strict';
+
+	angular.module('app')
+		.service('httpService', ['$http','CONFIG','$rootScope', function($http, CONFIG, $rootScope) {
+
+			var baseApiUrl = CONFIG.API_URL + 'api/';
+
+			return ({
+				setAuthHeader: setAuthHeader,
+				getCollection: getCollection,
+				getItem: getItem,
+				createItem: createItem,
+				updateItem: updateItem,
+				deleteItem: deleteItem
+			});
+
+			function setAuthHeader(authStr) {
+				$http.defaults.headers.common.Authorization = authStr;
+			}
+
+			function getCollection(entity) {
+
+				var url = baseApiUrl + entity;
+
+				var request = $rootScope.loadingData = $http({
+					method: "get",
+					url: url
+				});
+
+				return (request.then(handleSuccess, handleError));
+
+			}
+
+			function getItem(entity,id) {
+
+				var url = baseApiUrl + entity + '/' + id;
+
+				var request = $rootScope.loadingData = $http({
+					method: "get",
+					url: url
+				});
+
+				return (request.then(handleSuccess, handleError));
+			}
+
+			function createItem(entity,data) {
+
+				var url = baseApiUrl + entity;
+
+				var request = $rootScope.loadingData = $http({
+					method: "post",
+					url: url,
+					data: data
+				});
+
+				return (request.then(handleSuccess, handleError));
+			}
+
+			function updateItem(entity,id,data) {
+
+				var url = baseApiUrl + entity + '/' + id;
+
+				var request = $rootScope.loadingData = $http({
+					method: "put",
+					url: url,
+					data: data
+				});
+
+				return (request.then(handleSuccess, handleError));
+			}
+
+			function deleteItem(entity,id,data) {
+
+				var url = baseApiUrl + entity + '/' + id;
+
+				var request = $rootScope.loadingData = $http({
+					method: "delete",
+					url: url
+				});
+
+				return (request.then(handleSuccess, handleError));
+			}
+
+			function handleError(response) {
+				return (response.message);
+			}
+
+			function handleSuccess(response) {
+				return (response.data);
+			}
+		}]);
+})();
+
 (function() {
 	'use strict';
 	angular.module('app')
-	.factory('UserServices', ['Auth', '$cookieStore', '$rootScope', '$http', '$location', 'CONFIG', function (Auth, $cookieStore, $rootScope, $http, $location, CONFIG) {
+	.factory('UserServices', ['Auth', '$cookieStore', '$rootScope', 'httpService', '$location', 'CONFIG', function (Auth, $cookieStore, $rootScope, httpService, $location, CONFIG) {
 
 		return {
 			login: function(username,password) {
 				if(!username || !password) {
 				if($cookieStore.get('authdata')) {
-					$http.get(CONFIG.API_URL + 'api/users').
-					success(function(data) {
-						// Store the user's data
-						$rootScope.user = data;
+					httpService.getCollection('users').then(function(user) {
+						$rootScope.user = user;
 						$rootScope.loggedUser = true;
-
 						// Redirect to home
 						var currentLoc = $location.path();
 						if(currentLoc === '/login' || currentLoc === '/signup') {
-						$location.path('/');
+							$location.path('/');
 						}
-					}).
-					error(function(status) {
-						$location.path('/login');
-						console.log(status);
 					});
 				} else {
 					$location.path('/login');
 				}
 				} else {
-				Auth.setCredentials(CONFIG.USERNAME_PREFIX + username,password);
-				this.login();
+					Auth.setCredentials(CONFIG.USERNAME_PREFIX + username,password);
+					this.login();
 				}
 			},
 			logout: function() {
@@ -499,13 +565,13 @@
 			},
 			resetUser: function() {
 				$rootScope.user = {
-				Email: '',
-				ExternalSystemKey: null,
-				Name: 'Guest',
-				TimeZoneId: '',
-				UseStopwatchApproachToTimeEntry: false,
-				UserId: 0,
-				UserName: ''
+					Email: '',
+					ExternalSystemKey: null,
+					Name: 'Guest',
+					TimeZoneId: '',
+					UseStopwatchApproachToTimeEntry: false,
+					UserId: 0,
+					UserName: ''
 				};
 				$rootScope.loggedUser = false;
 			}

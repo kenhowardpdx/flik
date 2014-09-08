@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    angular.module('app', ['ngCookies','ngRoute', 'ui.bootstrap', 'templates', 'site-config', 'login-logout', 'ngAnimate', 'toaster'])
+    angular.module('app', ['ngCookies','ngRoute', 'ui.bootstrap', 'templates', 'site-config', 'ngAnimate', 'toaster', 'cgBusy'])
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
