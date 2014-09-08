@@ -30,7 +30,7 @@
         controller: 'TimeEntriesCtrl',
         title: 'Time Entries'
       })
-      .when('/time/add', {
+      .when('/time/add/:dateStr', {
           templateUrl: 'time/time-edit.html',
           controller: 'TimeEntryCtrl',
           title: 'Add Time'
