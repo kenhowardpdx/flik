@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    angular.module('app', ['ngCookies','ngRoute', 'ui.bootstrap', 'templates', 'site-config', 'login-logout', 'ngAnimate', 'toaster'])
+    angular.module('app', ['ngCookies','ngRoute', 'ui.bootstrap', 'templates', 'site-config', 'ngAnimate', 'toaster', 'cgBusy'])
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
@@ -27,8 +27,18 @@
       })
       .when('/time', {
         templateUrl: 'time/time.html',
-        controller: 'TimeCtrl',
-        title: 'Time Entry'
+        controller: 'TimeEntriesCtrl',
+        title: 'Time Entries'
+      })
+      .when('/time/add/:dateStr', {
+          templateUrl: 'time/time-edit.html',
+          controller: 'TimeEntryCtrl',
+          title: 'Add Time'
+      })
+      .when('/time/edit/:entryId', {
+          templateUrl: 'time/time-edit.html',
+          controller: 'TimeEntryCtrl',
+          title: 'Edit Time'
       })
       .when('/projects', {
           templateUrl: 'projects/projects.html',
@@ -95,30 +105,54 @@
 
     var configData = {
         'CONFIG': {
+            'DEBUG': true,
             'SITE_NAME': 'Citrus',
             'APP_VERSION': '1.0.0',
             'API_URL': 'https://csgprohackathonapi.azurewebsites.net/',
             'USERNAME_PREFIX': 'c*'
-    }
+        }
     };
     angular.forEach(configData, function(key,value) {
-    angular.module('site-config').constant(value,key);
-    // Load config constants
+        angular.module('site-config').constant(value,key);
+        // Load config constants
     });
+
+    angular.module('app')
+        .value('cgBusyDefaults',{
+            message:'Please Wait...',
+            backdrop: true,
+            delay: 100,
+            minDuration: 900
+        });
+})();
+
+(function() {
+	'use strict';
+	angular.module('app')
+		.filter('aDate', function($filter) {
+		  var suffixes = ["th", "st", "nd", "rd"];
+		  return function(input, format) {
+		    var dtfilter = $filter('date')(input, format);
+		    var day = parseInt($filter('date')(input, 'dd'));
+		    var relevantDigits = (day < 30) ? day % 20 : day % 30;
+		    var suffix = (relevantDigits <= 3) ? suffixes[relevantDigits] : suffixes[0];
+		    return dtfilter.replace('oo', suffix);
+		  };
+		});
 })();
 
 (function() {
     'use strict';
 
-    angular.module('login-logout', [])
-      .controller('LoginCtrl', function ($scope, UserServices) {
-        $scope.login = function(credentials) {
-          UserServices.login(credentials.username,credentials.password);
-        };
-      })
-      .controller('LogOutCtrl', function ($scope, UserServices) {
-        UserServices.logout();
-      });
+    angular.module('app')
+        .controller('LoginCtrl', ['$scope','UserServices', function ($scope, UserServices) {
+            $scope.login = function(credentials) {
+                UserServices.login(credentials.username,credentials.password);
+            };
+        }])
+        .controller('LogOutCtrl', function ($scope, UserServices) {
+            UserServices.logout();
+        });
 })();
 
 (function() {
@@ -152,19 +186,15 @@
 	'use strict';
 
 	angular.module('app')
-		.controller('ProjectCtrl', ['$scope','$location','$routeParams','$http','toaster','CONFIG', function ($scope, $location, $routeParams, $http, toaster, CONFIG) {
+		.controller('ProjectCtrl', ['$scope','$location','$routeParams','httpService','toaster', function ($scope, $location, $routeParams, httpService, toaster) {
 		// Do awesome things
 
 		$scope.projectId = $routeParams.projectId;
 
 		if($scope.projectId) {
 			// Get record
-			$http.get(CONFIG.API_URL + 'api/projects/' + $scope.projectId)
-			.success(function(data) {
-				$scope.project = data;
-			})
-			.error(function() {
-				toaster.pop('error', 'Something went horribly wrong');
+			httpService.getItem('projects',$scope.projectId).then(function(project) {
+				$scope.project = project;
 			});
 		} else {
 			// Create empty record
@@ -176,23 +206,26 @@
 			var id = $scope.projectId;
 			if (id) {
 				// Update record
-				$http.put(CONFIG.API_URL + 'api/projects/' + id, data)
-				.success(function() {
-					toaster.pop('success','Updated Project');
+				httpService.updateItem('projects',id,data).then(function() {
+					toaster.pop('success', 'Updated Project');
 					$location.url('/projects');
-				})
-				.error(function() {
-					toaster.pop('error', 'Something went horribly wrong');
 				});
 			} else {
 				// Add record
-				$http.post(CONFIG.API_URL + 'api/projects', data)
-				.success(function(){
-					toaster.pop('success','Created Project');
-					$location.url('/projects');
-				})
-				.error(function(){
-					toaster.pop('error', 'Something went horribly wrong');
+				httpService.createItem('projects', data).then(function(project) {
+					var data = {
+						ProjectId: project.ProjectId,
+						Name: 'default'
+					};
+					httpService.createItem('projectroles', data).then(function(projectRole) {
+						data.ProjectRoleId = projectRole.ProjectRoleId;
+						data.Billable = true;
+						data.RequireComment = true;
+						httpService.createItem('projecttasks', data).then(function() {
+							toaster.pop('success', 'Created Project');
+							$location.url('/projects');
+						});
+					});
 				});
 			}
 		};
@@ -205,17 +238,21 @@
 	'use strict';
 
 	angular.module('app')
-	.controller('ProjectsCtrl', ['$scope','$http','CONFIG', function ($scope,$http,CONFIG) {
+	.controller('ProjectsCtrl', ['$scope','httpService', function ($scope, httpService) {
 		// Do awesome stuff
 
 		// Get the list of projects for this user
-		$http.get(CONFIG.API_URL + 'api/projects').
-		success(function(data) {
-			$scope.projects = data;
-		}).
-		error(function(status) {
-			console.log(status);
+		httpService.getCollection('projects').then(function(projects) {
+			$scope.projects = projects;
 		});
+
+		var deleteRole = function (roleId) {
+			return httpService.deleteItem('projectroles',roleId);
+		};
+
+		var deleteTask = function (taskId) {
+			return httpService.deleteItem('projecttasks',taskId);
+		};
 
 		$scope.deleteRecord = function($index) {
 			var data = $scope.projects[$index];
@@ -224,13 +261,25 @@
 				// Delete record
 				// TODO: Handle confirmation messages with Angular/Bootstrap.
 				if(confirm('Are you sure?')) {
-					$http.delete(CONFIG.API_URL + 'api/projects/' + id)
-					.success(function() {
-						// TODO: Animate item removed...
-						$scope.projects.splice($index,1);
-					})
-					.error(function() {
-						toaster.pop('error', 'Unable to delete');
+					httpService.getItem('projects', id).then(function(project) {
+						var fail = 0;
+						var i = 0;
+						if (project.ProjectRoles.length > 0) {
+							for (i = 0; i < project.ProjectRoles.length; i++) {
+								fail = (!deleteRole(project.ProjectRoles[i].ProjectRoleId)) ? fail + 1 : fail;
+							}
+						}
+						if (project.ProjectTasks.length > 0) {
+							for (i = 0; i < project.ProjectTasks.length; i++) {
+								fail = (!deleteTask(project.ProjectTasks[i].ProjectTaskId)) ? fail + 1 : fail;
+							}
+						}
+						if (!fail) {
+							httpService.deleteItem('projects',id).then(function() {
+								// TODO: Animate item removed...
+								$scope.projects.splice($index,1);
+							});
+						}
 					});
 				}
 			}
@@ -240,23 +289,36 @@
 })();
 
 (function() {
+	'use strict';
+
+	angular.module('app')
+		.factory('App', [function() {
+			return {
+				formatDate: function (date,format) {
+				    return date.format(format); // This is not going to stay. Just using it to stub out service.
+				}
+			};
+		}]);
+})();
+
+(function() {
     'use strict';
 
     angular.module('app')
-        .factory('Auth', ['Base64', '$cookieStore', '$http', function (Base64, $cookieStore, $http) {
+        .factory('Auth', ['Base64', '$cookieStore', 'httpService', function (Base64, $cookieStore, httpService) {
             // initialize to whatever is in the cookie, if anything
-            $http.defaults.headers.common.Authorization = 'Basic ' + $cookieStore.get('authdata');
+            httpService.setAuthHeader('Basic ' + $cookieStore.get('authdata'));
 
             return {
                 setCredentials: function (username, password) {
                     var encoded = Base64.encode(username + ':' + password);
-                    $http.defaults.headers.common.Authorization = 'Basic ' + encoded;
+                    httpService.setAuthHeader('Basic ' + encoded);
                     $cookieStore.put('authdata', encoded);
                   },
                 clearCredentials: function () {
                     document.execCommand('ClearAuthenticationCache');
                     $cookieStore.remove('authdata');
-                    $http.defaults.headers.common.Authorization = 'Basic ';
+                    httpService.setAuthHeader('');
                   },
                 readCredentials: function () {
                   var decoded = Base64.decode($cookieStore.get('authdata'));
@@ -356,37 +418,125 @@
 })();
 /* jshint ignore:end */
 
+(function () {
+	'use strict';
+
+	angular.module('app')
+		.service('httpService', ['$http','CONFIG','$rootScope', function($http, CONFIG, $rootScope) {
+
+			var baseApiUrl = CONFIG.API_URL + 'api/';
+
+			return ({
+				setAuthHeader: setAuthHeader,
+				getCollection: getCollection,
+				getItem: getItem,
+				createItem: createItem,
+				updateItem: updateItem,
+				deleteItem: deleteItem
+			});
+
+			function setAuthHeader(authStr) {
+				$http.defaults.headers.common.Authorization = authStr;
+			}
+
+			function getCollection(entity) {
+
+				var url = baseApiUrl + entity;
+
+				var request = $rootScope.loadingData = $http({
+					method: "get",
+					url: url
+				});
+
+				return (request.then(handleSuccess, handleError));
+
+			}
+
+			function getItem(entity,id) {
+
+				var url = baseApiUrl + entity + '/' + id;
+
+				var request = $rootScope.loadingData = $http({
+					method: "get",
+					url: url
+				});
+
+				return (request.then(handleSuccess, handleError));
+			}
+
+			function createItem(entity,data) {
+
+				var url = baseApiUrl + entity;
+
+				var request = $rootScope.loadingData = $http({
+					method: "post",
+					url: url,
+					data: data
+				});
+
+				return (request.then(handleSuccess, handleError));
+			}
+
+			function updateItem(entity,id,data) {
+
+				var url = baseApiUrl + entity + '/' + id;
+
+				var request = $rootScope.loadingData = $http({
+					method: "put",
+					url: url,
+					data: data
+				});
+
+				return (request.then(handleSuccess, handleError));
+			}
+
+			function deleteItem(entity,id) {
+
+				var url = baseApiUrl + entity + '/' + id;
+
+				var request = $rootScope.loadingData = $http({
+					method: "delete",
+					url: url
+				});
+
+				return (request.then(handleSuccess, handleError));
+			}
+
+			function handleError(response) {
+				return (response.message);
+			}
+
+			function handleSuccess(response) {
+				return (response.data);
+			}
+		}]);
+})();
+
 (function() {
 	'use strict';
 	angular.module('app')
-	.factory('UserServices', ['Auth', '$cookieStore', '$rootScope', '$http', '$location', 'CONFIG', function (Auth, $cookieStore, $rootScope, $http, $location, CONFIG) {
+	.factory('UserServices', ['Auth', '$cookieStore', '$rootScope', 'httpService', '$location', 'CONFIG', function (Auth, $cookieStore, $rootScope, httpService, $location, CONFIG) {
 
 		return {
 			login: function(username,password) {
 				if(!username || !password) {
 				if($cookieStore.get('authdata')) {
-					$http.get(CONFIG.API_URL + 'api/users').
-					success(function(data) {
-						// Store the user's data
-						$rootScope.user = data;
+					httpService.getCollection('users').then(function(user) {
+						$rootScope.user = user;
 						$rootScope.loggedUser = true;
-
 						// Redirect to home
 						var currentLoc = $location.path();
 						if(currentLoc === '/login' || currentLoc === '/signup') {
-						$location.path('/');
+							$location.path('/');
 						}
-					}).
-					error(function(status) {
-						$location.path('/login');
-						console.log(status);
 					});
 				} else {
 					$location.path('/login');
 				}
 				} else {
-				Auth.setCredentials(CONFIG.USERNAME_PREFIX + username,password);
-				this.login();
+					username = this.saltUserName(username);
+					Auth.setCredentials(username,password);
+					this.login();
 				}
 			},
 			logout: function() {
@@ -398,15 +548,18 @@
 			},
 			resetUser: function() {
 				$rootScope.user = {
-				Email: '',
-				ExternalSystemKey: null,
-				Name: 'Guest',
-				TimeZoneId: '',
-				UseStopwatchApproachToTimeEntry: false,
-				UserId: 0,
-				UserName: ''
+					Email: '',
+					ExternalSystemKey: null,
+					Name: 'Guest',
+					TimeZoneId: '',
+					UseStopwatchApproachToTimeEntry: false,
+					UserId: 0,
+					UserName: ''
 				};
 				$rootScope.loggedUser = false;
+			},
+			saltUserName: function(username) {
+				return CONFIG.USERNAME_PREFIX + username;
 			}
 		};
 	}]);
@@ -416,54 +569,34 @@
     'use strict';
 
     angular.module('app')
-      .controller('SignupCtrl', ['$rootScope','$scope','$http','UserServices','CONFIG', function ($rootScope, $scope, $http, UserServices, CONFIG) {
+        .controller('SignupCtrl', ['$rootScope','$scope','httpService','UserServices', function ($rootScope, $scope, httpService, UserServices) {
 
-        var newUser = {
-          Username: '',
-          Email: '',
-          Password: '',
-          UserID: null
-        };
+            var newUser = {
+                Username: '',
+                Email: '',
+                Password: '',
+                UserID: null
+            };
 
-        $scope.errors = false; // hides the error panel
+            $scope.errors = false; // hides the error panel
 
-        $scope.createUser = function() {
+            $scope.createUser = function() {
 
-          newUser = {
-            Password: $scope.password,
-            UserName: CONFIG.USERNAME_PREFIX + $scope.username,
-            Name    : $scope.name,
-            Email   : $scope.email,
-            TimeZoneId : 'Pacific Standard Time',
-            // UseStopwatchApproachToTimeEntry: false,
-            // ExternalSystemKey : 'this is a string #CITRUS'
-          };
+                newUser = {
+                    Password: $scope.password,
+                    UserName: UserServices.saltUserName($scope.username),
+                    Name    : $scope.name,
+                    Email   : $scope.email,
+                    TimeZoneId : 'Pacific Standard Time',
+                    UseStopwatchApproachToTimeEntry: false,
+                    ExternalSystemKey : 'CTRS*'
+                };
 
-          // KHTODO: Enable Twitter Registration
-          //OAuth.initialize('IZhywZ2WEaqbWh7-zWYN_VL_acY');
-          //OAuth.redirect('twitter', "/#/");
-
-          $http.post(CONFIG.API_URL + 'api/users', newUser).
-            success(function(data) {
-              $rootScope.user = data;
-              UserServices.login($scope.username,$scope.password);
-            }).
-            error(function(data, status) {
-              // called asynchronously if an error occurs
-              // or server returns response with an error status.
-              if(status === 400) {
-
-                // check if the user already exists
-
-                $scope.errors = true;
-                $scope.errorHeading = data.Message;
-                $scope.errorList = data.Errors;
-              } else {
-                console.log('Status != 400');
-                console.log(status);
-              }
-            });
-        };
+                httpService.createItem('users', newUser).then(function(user) {
+                    $rootScope.user = user;
+                    UserServices.login($scope.username,$scope.password);
+                });
+            };
 
         }]);
 })();
@@ -472,9 +605,79 @@
     'use strict';
 
     angular.module('app')
-      .controller('TimeCtrl', function ($scope) {
-        if($scope) {
-          // just a place holder
-        }
-      });
+        .controller('TimeEntriesCtrl', ['$scope','httpService', function ($scope, httpService) {
+
+            $scope.timeEntryDate = new Date();
+            $scope.timeEntries = [];
+
+            $scope.previousDate = function () {
+                $scope.timeEntryDate.setDate($scope.timeEntryDate.getDate() - 1);
+                getTimeEntries();
+            };
+
+            $scope.nextDate = function () {
+                $scope.timeEntryDate.setDate($scope.timeEntryDate.getDate() + 1);
+                getTimeEntries();
+            };
+
+            var getTimeEntries = function () {
+                // Get the list of time entries
+                var date = $scope.timeEntryDate;
+                var dateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
+                httpService.getCollection('timeentries/date/' + dateStr).then(function(entries) {
+                    $scope.timeEntries = entries;
+                });
+            };
+
+            getTimeEntries();
+
+
+        }]);
+})();
+
+(function() {
+	'use strict';
+
+	angular.module('app')
+		.controller('TimeEntryCtrl', ['$scope','httpService','$routeParams','$location','toaster', function ($scope, httpService, $routeParams, $location, toaster) {
+
+			var entry,
+				id = $routeParams.entryId,
+				dateStr = $routeParams.dateStr;
+
+			$scope.timeEntryDate = new Date(dateStr);
+
+			// Load list of projects for select list
+			httpService.getCollection('projects').then(function(projects) {
+				$scope.availableProjects = projects;
+			});
+
+			if(id) {
+				httpService.getItem('timeentries',$scope.entryId).then(function(entry) {
+					$scope.entry = entry;
+				});
+			} else {
+				$scope.entry = {};
+			}
+
+			$scope.saveRecord = function() {
+				entry = $scope.entry;
+				entry.ProjectRoleId = entry.Project.ProjectRoles[0].ProjectRoleId;
+				entry.ProjectTaskId = entry.Project.ProjectTasks[0].ProjectTaskId;
+				if (id) {
+					// Update record
+					httpService.updateItem('timeentries', id, entry).then(function() {
+						toaster.pop('success','Updated Time Entry');
+						$location.url('/time');
+					});
+				} else {
+					// Add record
+					entry.TimeIn = dateStr;
+					httpService.createItem('timeentries', entry).then(function() {
+						toaster.pop('success','Added Time Entry');
+						$location.url('/time');
+					});
+				}
+			};
+		}]);
 })();

@@ -2,19 +2,15 @@
 	'use strict';
 
 	angular.module('app')
-		.controller('ProjectCtrl', ['$scope','$location','$routeParams','$http','toaster','CONFIG', function ($scope, $location, $routeParams, $http, toaster, CONFIG) {
+		.controller('ProjectCtrl', ['$scope','$location','$routeParams','httpService','toaster', function ($scope, $location, $routeParams, httpService, toaster) {
 		// Do awesome things
 
 		$scope.projectId = $routeParams.projectId;
 
 		if($scope.projectId) {
 			// Get record
-			$http.get(CONFIG.API_URL + 'api/projects/' + $scope.projectId)
-			.success(function(data) {
-				$scope.project = data;
-			})
-			.error(function() {
-				toaster.pop('error', 'Something went horribly wrong');
+			httpService.getItem('projects',$scope.projectId).then(function(project) {
+				$scope.project = project;
 			});
 		} else {
 			// Create empty record
@@ -26,23 +22,26 @@
 			var id = $scope.projectId;
 			if (id) {
 				// Update record
-				$http.put(CONFIG.API_URL + 'api/projects/' + id, data)
-				.success(function() {
-					toaster.pop('success','Updated Project');
+				httpService.updateItem('projects',id,data).then(function() {
+					toaster.pop('success', 'Updated Project');
 					$location.url('/projects');
-				})
-				.error(function() {
-					toaster.pop('error', 'Something went horribly wrong');
 				});
 			} else {
 				// Add record
-				$http.post(CONFIG.API_URL + 'api/projects', data)
-				.success(function(){
-					toaster.pop('success','Created Project');
-					$location.url('/projects');
-				})
-				.error(function(){
-					toaster.pop('error', 'Something went horribly wrong');
+				httpService.createItem('projects', data).then(function(project) {
+					var data = {
+						ProjectId: project.ProjectId,
+						Name: 'default'
+					};
+					httpService.createItem('projectroles', data).then(function(projectRole) {
+						data.ProjectRoleId = projectRole.ProjectRoleId;
+						data.Billable = true;
+						data.RequireComment = true;
+						httpService.createItem('projecttasks', data).then(function() {
+							toaster.pop('success', 'Created Project');
+							$location.url('/projects');
+						});
+					});
 				});
 			}
 		};

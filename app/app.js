@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    angular.module('app', ['ngCookies','ngRoute', 'ui.bootstrap', 'templates', 'site-config', 'login-logout', 'ngAnimate', 'toaster'])
+    angular.module('app', ['ngCookies','ngRoute', 'ui.bootstrap', 'templates', 'site-config', 'ngAnimate', 'toaster', 'cgBusy'])
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
@@ -27,8 +27,18 @@
       })
       .when('/time', {
         templateUrl: 'time/time.html',
-        controller: 'TimeCtrl',
-        title: 'Time Entry'
+        controller: 'TimeEntriesCtrl',
+        title: 'Time Entries'
+      })
+      .when('/time/add/:dateStr', {
+          templateUrl: 'time/time-edit.html',
+          controller: 'TimeEntryCtrl',
+          title: 'Add Time'
+      })
+      .when('/time/edit/:entryId', {
+          templateUrl: 'time/time-edit.html',
+          controller: 'TimeEntryCtrl',
+          title: 'Edit Time'
       })
       .when('/projects', {
           templateUrl: 'projects/projects.html',

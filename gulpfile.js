@@ -40,6 +40,7 @@ gulp.task('vendorJS', function(){
         './bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js',
         './bower_components/angular-animate/angular-animate.js',
         './bower_components/angularjs-toaster/toaster.js',
+        './bower_components/angular-busy/dist/angular-busy.js',
         './bower_components/underscore/underscore.js'])
         .pipe(plugins.concat('lib.js'))
         .pipe(gulp.dest('./build'));
