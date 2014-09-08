@@ -8,3 +8,11 @@ body {
     with: 100%;
     float: none;
 }
+
+.nav.navbar-vertical {
+    > li {
+        > div {
+            &:extend(.nav > li > a);
+        }
+    }
+}
