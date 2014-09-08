@@ -2,16 +2,12 @@
 	'use strict';
 
 	angular.module('app')
-	.controller('ProjectsCtrl', ['$scope','$http','CONFIG', function ($scope,$http,CONFIG) {
+	.controller('ProjectsCtrl', ['$scope','httpService', function ($scope,httpService) {
 		// Do awesome stuff
 
 		// Get the list of projects for this user
-		$http.get(CONFIG.API_URL + 'api/projects').
-		success(function(data) {
-			$scope.projects = data;
-		}).
-		error(function(status) {
-			console.log(status);
+		httpService.getCollection('projects').then(function(projects) {
+			$scope.projects = projects;
 		});
 
 		$scope.deleteRecord = function($index) {
@@ -21,13 +17,8 @@
 				// Delete record
 				// TODO: Handle confirmation messages with Angular/Bootstrap.
 				if(confirm('Are you sure?')) {
-					$http.delete(CONFIG.API_URL + 'api/projects/' + id)
-					.success(function() {
-						// TODO: Animate item removed...
+					httpService.deleteItem('projects',id).then(function() {
 						$scope.projects.splice($index,1);
-					})
-					.error(function() {
-						toaster.pop('error', 'Unable to delete');
 					});
 				}
 			}
