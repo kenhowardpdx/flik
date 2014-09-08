@@ -20,7 +20,8 @@
 					$location.path('/login');
 				}
 				} else {
-					Auth.setCredentials(CONFIG.USERNAME_PREFIX + username,password);
+					username = this.saltUserName(username);
+					Auth.setCredentials(username,password);
 					this.login();
 				}
 			},
@@ -42,6 +43,9 @@
 					UserName: ''
 				};
 				$rootScope.loggedUser = false;
+			},
+			saltUserName: function(username) {
+				return CONFIG.USERNAME_PREFIX + username;
 			}
 		};
 	}]);
