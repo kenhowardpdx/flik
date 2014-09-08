@@ -11,23 +11,15 @@
 		});
 
 		var deleteRole = function (roleId) {
-			$http.delete(CONFIG.API_URL + 'api/projectroles/' + roleId)
-				.success(function() {
-					return true;
-				})
-				.error(function() {
-					return false;
-				});
+			httpService.deleteItem('projectroles',roleId).then(function() {
+				return true;
+			});
 		};
 
 		var deleteTask = function (taskId) {
-			$http.delete(CONFIG.API_URL + 'api/projecttasks/' + taskId)
-				.success(function() {
-					return true;
-				})
-				.error(function() {
-					return false;
-				});
+			httpService.deleteItem('projecttasks',taskId).then(function() {
+				return true;
+			});
 		};
 
 		$scope.deleteRecord = function($index) {
@@ -37,8 +29,25 @@
 				// Delete record
 				// TODO: Handle confirmation messages with Angular/Bootstrap.
 				if(confirm('Are you sure?')) {
-					httpService.deleteItem('projects',id).then(function() {
-						$scope.projects.splice($index,1);
+					httpService.getItem('projects', id).then(function(project) {
+						var fail = 0;
+						var i = 0;
+						if (project.ProjectRoles.length > 0) {
+							for (i = 0; i < project.ProjectRoles.length; i++) {
+								fail = (!deleteRole(project.ProjectRoles[i].ProjectRoleId)) ? fail + 1 : fail;
+							}
+						}
+						if (project.ProjectTasks.length > 0) {
+							for (i = 0; i < project.ProjectTasks.length; i++) {
+								fail = (!deleteTask(project.ProjectTasks[i].ProjectTaskId)) ? fail + 1 : fail;
+							}
+						}
+						if (!fail) {
+							httpService.deleteItem('projects',id).then(function() {
+								// TODO: Animate item removed...
+								$scope.projects.splice($index,1);
+							});
+						}
 					});
 				}
 			}
