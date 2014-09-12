@@ -30,12 +30,17 @@
         controller: 'TimeEntriesCtrl',
         title: 'Time Entries'
       })
+      .when('/time/:dateStr', {
+        templateUrl: 'time/time.html',
+        controller: 'TimeEntriesCtrl',
+        title: 'Time Entries'
+      })
       .when('/time/add/:dateStr', {
           templateUrl: 'time/time-edit.html',
           controller: 'TimeEntryCtrl',
           title: 'Add Time'
       })
-      .when('/time/edit/:entryId', {
+      .when('/time/edit/:dateStr/:entryId', {
           templateUrl: 'time/time-edit.html',
           controller: 'TimeEntryCtrl',
           title: 'Edit Time'
@@ -130,7 +135,7 @@
 	'use strict';
 
 	angular.module('app')
-		.directive('comment', ['$timeout', function($timeout) {
+		.directive('comment', [function() {
 				return {
 					restrict: 'AEC',
 					scope: {
@@ -178,10 +183,10 @@
 								scope.selectedAtItem = false;
 							}
 
-							if (keyCode === 8 && (scope.model.slice(-1) == '@' || scope.model.slice(-1) == '#')) {
+							if (keyCode === 32 || (keyCode === 8 && (scope.model.slice(-1) === '@' || scope.model.slice(-1) === '#'))) {
 								scope.selectedHashItem = scope.selectedAtItem = true;
 							}
-						}
+						};
 					},
 					templateUrl: 'partials/comment.html'
 				};
@@ -667,19 +672,30 @@
     'use strict';
 
     angular.module('app')
-        .controller('TimeEntriesCtrl', ['$scope','httpService', function ($scope, httpService) {
+        .controller('TimeEntriesCtrl', ['$scope','httpService','$location','$routeParams', function ($scope, httpService, $location, $routeParams) {
+
+            var dateStr = $routeParams.dateStr;
 
             $scope.timeEntryDate = new Date();
+            if(dateStr) {
+                $scope.timeEntryDate = new Date(dateStr);
+            }
             $scope.timeEntries = [];
 
             $scope.previousDate = function () {
                 $scope.timeEntryDate.setDate($scope.timeEntryDate.getDate() - 1);
-                getTimeEntries();
+                var date = $scope.timeEntryDate;
+                var dateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
+                $location.url('time/' + dateStr);
+                //getTimeEntries();
             };
 
             $scope.nextDate = function () {
                 $scope.timeEntryDate.setDate($scope.timeEntryDate.getDate() + 1);
-                getTimeEntries();
+                var date = $scope.timeEntryDate;
+                var dateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
+                $location.url('time/' + dateStr);
+                //getTimeEntries();
             };
 
             var getTimeEntries = function () {
@@ -689,6 +705,12 @@
                 httpService.getCollection('timeentries/date/' + dateStr).then(function(entries) {
                     $scope.timeEntries = entries;
                 });
+            };
+
+            $scope.editEntry = function (entry) {
+                var date = $scope.timeEntryDate;
+                var dateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
+                $location.url('/time/edit/' + dateStr + '/' + entry.TimeEntryId);
             };
 
             getTimeEntries();
@@ -709,10 +731,26 @@
 			'toaster',
 			function ($scope, httpService, $routeParams, $location, toaster) {
 
-			var id = $routeParams.entryId,
-				dateStr = $routeParams.dateStr;
+			var id = $routeParams.entryId;
+			var dateStr = $routeParams.dateStr;
 
-			$scope.timeEntryDate = new Date(dateStr);
+			$scope.timeEntryDate = new Date();
+			if(dateStr) {
+				$scope.timeEntryDate = new Date(dateStr);
+			}
+
+			$scope.enteredTime = '';
+
+			if(id) {
+				httpService.getItem('timeentries', id).then(function(entry) {
+					$scope.Comment = entry.Comment;
+					$scope.TimeIn = entry.TimeIn;
+				});
+			} else {
+				$scope.Comment = '';
+				$scope.TimeIn = dateStr;
+			}
+
 			$scope.selectedProjects = [];
 			$scope.selectedContexts = [];
 
@@ -732,22 +770,12 @@
 				}
 			];
 
-			$scope.enteredTime = '';
-
-			if(id) {
-				httpService.getItem('timeentries', id).then(function(entry) {
-					$scope.Comment = entry.Comment;
-				});
-			} else {
-				$scope.Comment = ''
-			}
-
 			var timeToFloat = function (time) {
 				var hoursMinutes = time.split(/[.:]/);
 				var hours = parseInt(hoursMinutes[0], 10);
 				var minutes = hoursMinutes[1] ? parseInt(hoursMinutes[1], 10) : 0;
 				return hours + minutes / 60;
-			}
+			};
 
 			var parseHours = function (str) {
 				var regex = /\d+[.:]*[0-9]{0,2}[\s]*[a-zA-Z]*/;
@@ -762,7 +790,7 @@
 
 				var num = tmp[0];
 
-				if(!parseInt(num)) {
+				if(tmp[0].indexOf(':')) {
 					num = timeToFloat(num);
 				}
 
@@ -801,10 +829,10 @@
 				return projectStr;
 			};
 
-			var parseContext = function (str) {
-				var regex = /@[a-zA-Z0-9]*/;
-				var	contextStr = regex.exec(str);
-			};
+			// var parseContext = function (str) {
+			// 	var regex = /@[a-zA-Z0-9]*/;
+			// 	var	contextStr = regex.exec(str);
+			// };
 
 			var createProject = function (str,cb) {
 				var newProjectID = null;
@@ -819,12 +847,12 @@
 						data.ProjectRoleId = projectRole.ProjectRoleId;
 						data.Billable = true;
 						data.RequireComment = true;
-						httpService.createItem('projecttasks', data).then(function(projectTask) {
+						httpService.createItem('projecttasks', data).then(function() {
 							httpService.getItem('projects',newProjectID).then(cb(project));
 						});
 					});
 				});
-			}
+			};
 
 			var lookupProject = function(str) {
 				var project = parseProject(str);
@@ -839,31 +867,40 @@
 						saveTimeEntry(str,project);
 					});
 				}
-			}
+			};
 
 			var saveTimeEntry = function(str,project) {
+				var date = $scope.timeEntryDate;
+				var dateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
 				var entry = {
 					ProjectRoleId: project.ProjectRoles[0].ProjectRoleId,
 					ProjectTaskId: project.ProjectTasks[0].ProjectTaskId,
 					Billable: true,
 					Hours: parseHours(str),
-					Comment: str
-				}
+					Comment: str,
+					TimeIn: $scope.TimeIn
+				};
+
 				if (id) {
 					// Update record
 					httpService.updateItem('timeentries', id, entry).then(function() {
 						toaster.pop('success','Updated Time Entry');
-						$location.url('/time');
+						$location.url('/time/' + dateStr);
+					},
+					function(res) {
+						console.log(res);
 					});
 				} else {
 					// Add record
-					entry.TimeIn = dateStr;
 					httpService.createItem('timeentries', entry).then(function() {
-						toaster.pop('success','Added Time Entry');
-						$location.url('/time');
+						toaster.pop('success','Updated Time Entry');
+						$location.url('/time/' + dateStr);
+					},
+					function(res) {
+						console.log(res);
 					});
 				}
-			}
+			};
 
 			$scope.saveRecord = function() {
 				// Look for existing project.. This kicks off the save process.

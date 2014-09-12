@@ -11,9 +11,12 @@
 </div>
 
 <ul class="timeEntries nav navbar-vertical">
-    <li ng-repeat="entry in timeEntries">
-        <div>
+    <li ng-repeat="entry in timeEntries" ng-click="editEntry(entry)">
+        <div class="col-xs-9">
             <span ng-bind="entry.Comment"></span>
+        </div>
+        <div class="col-xs-3">
+            <span ng-bind="entry.Hours"></span>
         </div>
     </li>
 </ul>

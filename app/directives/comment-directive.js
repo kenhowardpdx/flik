@@ -2,7 +2,7 @@
 	'use strict';
 
 	angular.module('app')
-		.directive('comment', ['$timeout', function($timeout) {
+		.directive('comment', [function() {
 				return {
 					restrict: 'AEC',
 					scope: {
@@ -50,10 +50,10 @@
 								scope.selectedAtItem = false;
 							}
 
-							if (keyCode === 8 && (scope.model.slice(-1) == '@' || scope.model.slice(-1) == '#')) {
+							if (keyCode === 32 || (keyCode === 8 && (scope.model.slice(-1) === '@' || scope.model.slice(-1) === '#'))) {
 								scope.selectedHashItem = scope.selectedAtItem = true;
 							}
-						}
+						};
 					},
 					templateUrl: 'partials/comment.html'
 				};
