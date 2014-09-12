@@ -631,42 +631,6 @@
     'use strict';
 
     angular.module('app')
-        .controller('SignupCtrl', ['$rootScope','$scope','httpService','UserServices', function ($rootScope, $scope, httpService, UserServices) {
-
-            var newUser = {
-                Username: '',
-                Email: '',
-                Password: '',
-                UserID: null
-            };
-
-            $scope.errors = false; // hides the error panel
-
-            $scope.createUser = function() {
-
-                newUser = {
-                    Password: $scope.password,
-                    UserName: UserServices.saltUserName($scope.username),
-                    Name    : $scope.name,
-                    Email   : $scope.email,
-                    TimeZoneId : 'Pacific Standard Time',
-                    UseStopwatchApproachToTimeEntry: false,
-                    ExternalSystemKey : 'CTRS*'
-                };
-
-                httpService.createItem('users', newUser).then(function(user) {
-                    $rootScope.user = user;
-                    UserServices.login($scope.username,$scope.password);
-                });
-            };
-
-        }]);
-})();
-
-(function() {
-    'use strict';
-
-    angular.module('app')
         .controller('TimeEntriesCtrl', ['$scope','httpService', function ($scope, httpService) {
 
             $scope.timeEntryDate = new Date();
@@ -701,7 +665,13 @@
 	'use strict';
 
 	angular.module('app')
-		.controller('TimeEntryCtrl', ['$scope','httpService','$routeParams','$location','toaster', function ($scope, httpService, $routeParams, $location, toaster) {
+		.controller('TimeEntryCtrl',
+			['$scope',
+			'httpService',
+			'$routeParams',
+			'$location',
+			'toaster',
+			function ($scope, httpService, $routeParams, $location, toaster) {
 
 			var entry,
 				id = $routeParams.entryId,
@@ -725,8 +695,6 @@
 				}
 			];
 
-			$scope.selectedProjects = [];
-			$scope.selectedContexts = [];
 			$scope.enteredTime = '';
 
 			if(id) {
@@ -737,7 +705,25 @@
 				$scope.entry = {};
 			}
 
+			var parseHours = function (str) {
+				var regex = /\d+[\s]*[a-zA-Z]*/;
+				var hoursStr = regex.exec(str);
+			};
+
+			var parseProject = function (str) {
+				var regex = /#[a-zA-Z0-9]*/;
+				var projectStr = regex.match(str);
+			};
+
+			var parseContext = function (str) {
+				var regex = /@[a-zA-Z0-9]*/;
+				var	contextStr = regex.match(str);
+			};
+
 			$scope.saveRecord = function() {
+				$scope.entry.Hours = parseHours($scope.entry.Comment);
+				$scope.entry.Project = parseProject($scope.entry.Comment);
+				$scope.entry.Context = parseContext($scope.entry.Comment);
 				entry = $scope.entry;
 				entry.ProjectRoleId = entry.Project.ProjectRoles[0].ProjectRoleId;
 				entry.ProjectTaskId = entry.Project.ProjectTasks[0].ProjectTaskId;
@@ -757,4 +743,40 @@
 				}
 			};
 		}]);
+})();
+
+(function() {
+    'use strict';
+
+    angular.module('app')
+        .controller('SignupCtrl', ['$rootScope','$scope','httpService','UserServices', function ($rootScope, $scope, httpService, UserServices) {
+
+            var newUser = {
+                Username: '',
+                Email: '',
+                Password: '',
+                UserID: null
+            };
+
+            $scope.errors = false; // hides the error panel
+
+            $scope.createUser = function() {
+
+                newUser = {
+                    Password: $scope.password,
+                    UserName: UserServices.saltUserName($scope.username),
+                    Name    : $scope.name,
+                    Email   : $scope.email,
+                    TimeZoneId : 'Pacific Standard Time',
+                    UseStopwatchApproachToTimeEntry: false,
+                    ExternalSystemKey : 'CTRS*'
+                };
+
+                httpService.createItem('users', newUser).then(function(user) {
+                    $rootScope.user = user;
+                    UserServices.login($scope.username,$scope.password);
+                });
+            };
+
+        }]);
 })();
