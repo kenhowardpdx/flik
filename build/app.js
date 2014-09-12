@@ -848,7 +848,9 @@
 						data.Billable = true;
 						data.RequireComment = true;
 						httpService.createItem('projecttasks', data).then(function() {
-							httpService.getItem('projects',newProjectID).then(cb(project));
+							httpService.getItem('projects',newProjectID).then(function (project) {
+								cb(project);
+							});
 						});
 					});
 				});
