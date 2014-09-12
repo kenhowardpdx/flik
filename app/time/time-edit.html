@@ -9,16 +9,6 @@
 </div>
 
 <div class="row">
-	<div class="col-sm-3 form-group">
-		<label for="name">Time:</label>
-		<input type="text" name="time" id="time" ng-model="entry.Hours" class="form-control"  />
-	</div>
-	<div class="col-sm-3 form-group">
-		<label for="name">Project:</label>
-		<select name="projectId" class="form-control" ng-model="entry.Project" ng-options="projects.Name for projects in availableProjects">
-			<option value="">--Select One--</option>
-		</select>
-	</div>
 	<div class="col-sm-6 form-group">
 		<label for="comment">Comment:</label>
 		<comment hashitems="availableProjects" atitems="availableContexts" prompt="What did you do today?" title="Name" model="entry.Comment" selected-hash-items="selectedProjects" selected-at-items="selectedContexts" />

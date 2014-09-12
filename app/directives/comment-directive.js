@@ -37,14 +37,21 @@
 							return false;
 						};
 						scope.evaluateKey = function($event) {
+
 							var keyCode = $event.keyCode;
-							if (keyCode === 51) // #
+
+							if (keyCode === 51 && $event.shiftKey) // #
 							{
 								scope.selectedHashItem = false;
 							}
-							if (keyCode === 50) // @
+
+							if (keyCode === 50 && $event.shiftKey) // @
 							{
 								scope.selectedAtItem = false;
+							}
+
+							if (keyCode === 8 && (scope.model.slice(-1) == '@' || scope.model.slice(-1) == '#')) {
+								scope.selectedHashItem = scope.selectedAtItem = true;
 							}
 						}
 					},

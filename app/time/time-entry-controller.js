@@ -28,6 +28,7 @@
 
 			$scope.selectedProjects = [];
 			$scope.selectedContexts = [];
+			$scope.enteredTime = '';
 
 			if(id) {
 				httpService.getItem('timeentries',$scope.entryId).then(function(entry) {
