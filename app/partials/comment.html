@@ -1,0 +1,24 @@
+
+
+
+<input class="form-control" type="text" ng-model="model" ng-keydown="evaluateKey($event)" />
+
+
+
+
+
+
+
+<br/>
+
+<div class="hashes" ng-hide="selectedHashItem">
+	<div class="hash item" ng-repeat="hash in hashitems track by $index" ng-click="handleSelection('hash',hash)" style="cursor:pointer">
+		<p class="title">{{hash[title]}}</p>
+	</div>
+</div>
+
+<div class="ats" ng-hide="selectedAtItem">
+	<div class="at item" ng-repeat="at in atitems track by $index" ng-click="handleSelection('at',at)" style="cursor:pointer">
+		<p class="title">{{at[title]}}</p>
+	</div>
+</div>

@@ -15,6 +15,21 @@
 				$scope.availableProjects = projects;
 			});
 
+			$scope.availableContexts = [
+				{
+					ContextId: 0,
+					Name: 'home'
+				},
+				{
+					ContextId: 0,
+					Name: 'office'
+				}
+			];
+
+			$scope.selectedProjects = [];
+			$scope.selectedContexts = [];
+			$scope.enteredTime = '';
+
 			if(id) {
 				httpService.getItem('timeentries',$scope.entryId).then(function(entry) {
 					$scope.entry = entry;
