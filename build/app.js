@@ -704,6 +704,7 @@
                 var dateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
                 httpService.getCollection('timeentries/date/' + dateStr).then(function(entries) {
                     $scope.timeEntries = entries;
+                    getColorClassForEntries($scope.timeEntries);
                 });
             };
 
@@ -711,6 +712,26 @@
                 var date = $scope.timeEntryDate;
                 var dateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
                 $location.url('/time/edit/' + dateStr + '/' + entry.TimeEntryId);
+            };
+
+            var getColorClassForEntries = function (entries) {
+                for(var i = 0; i < entries.length; i++) {
+                    entries[i].ProjectColorClass = getColorClass(entries[i].ProjectRoleId,entries[i].ProjectTaskId);
+                }
+            };
+
+            var getColorClass = function (num1,num2) {
+                var colorClass = 'project-color-';
+                var num = 0;
+                var num1 = num1.toString().slice(-1);
+                var num2 = num2.toString().slice(-1);
+                if(num1 > num2) {
+                    num = num2 / num1;
+                } else {
+                    num = num1 / num2;
+                }
+                colorClass = colorClass + Math.floor(num * 10);
+                return colorClass;
             };
 
             getTimeEntries();
@@ -757,6 +778,7 @@
 			// Load list of projects for select list
 			httpService.getCollection('projects').then(function(projects) {
 				$scope.availableProjects = projects;
+				checkAndUpdateProjectColor(projects);
 			});
 
 			$scope.availableContexts = [
@@ -834,9 +856,25 @@
 			// 	var	contextStr = regex.exec(str);
 			// };
 
+			// var generateColorIndex = function (min,max) {
+			// 	return Math.floor(Math.random() * (max - min) + min);
+			// };
+			//
+			// var checkAndUpdateProjectColor = function (projects) {
+			// 	for (var i = 0; i < projects.length; i++) {
+			// 		var colorId = projects[i].ExternalSystemKey;
+			// 		if (!colorId || !(colorId > 0 && colorId < 20)) {
+			// 			projects[i].ExternalSystemKey = generateColorIndex(1,19);
+			// 			httpService.updateItem('projects', projects[i].ProjectId, projects[i]);
+			// 		}
+			// 	}
+			// };
+
 			var createProject = function (str,cb) {
 				var newProjectID = null;
-				var data = { Name: str };
+				var data = {
+						Name: str
+					};
 				httpService.createItem('projects', data).then(function(project) {
 					newProjectID = project.ProjectId;
 					var data = {
