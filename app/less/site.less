@@ -16,3 +16,36 @@ body {
         }
     }
 }
+
+// @iterations: 10;
+@colors: #32aa34,#2af3ff,#dc0300,#fb9fa3,#3da3ff,#f28200,#92f0ff,#ddac00,#8b000f,#d3ff00;
+
+// .project-colors {
+//     .-(@i: length(@colors)) when (@i > 0) {
+//         @name: e(extract(@colors, @i));
+//         &.@{name} {background: @@name}
+//         .-((@i - 1));
+//     } .-;
+// }
+// .project-color {
+//     .for(@colors); .-each(@i) {
+//         &-@{i} {background-color: @colors}
+//     }
+// }
+
+.project-color {
+    .-(@i: length(@colors)) when (@i > 0) {
+        @num: @i - 1;
+        @bgcolor: extract(@colors, @i);
+        &-@{num} {
+            background-color: @bgcolor;
+            & when (lightness(@bgcolor) < 60%) {
+                color: #fff;
+            }
+            & when (lightness(@bgcolor) > 60%) {
+                color: darken(@bgcolor,60%);
+            }
+        }
+        .-((@i - 1));
+    } .-;
+}
