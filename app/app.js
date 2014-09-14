@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    angular.module('app', ['ngCookies','ngRoute', 'ui.bootstrap', 'templates', 'site-config', 'ngAnimate', 'toaster', 'cgBusy'])
+    angular.module('app', ['ngCookies','ngRoute', 'ui.bootstrap', 'templates', 'site-config', 'ngAnimate', 'toaster', 'cgBusy', 'app.directives'])
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
@@ -64,4 +64,5 @@
         redirectTo: '/login'
       });
   });
+  angular.module('app.directives', []);
 })();

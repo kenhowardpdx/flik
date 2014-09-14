@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    angular.module('app', ['ngCookies','ngRoute', 'ui.bootstrap', 'templates', 'site-config', 'ngAnimate', 'toaster', 'cgBusy'])
+    angular.module('app', ['ngCookies','ngRoute', 'ui.bootstrap', 'templates', 'site-config', 'ngAnimate', 'toaster', 'cgBusy', 'app.directives'])
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
@@ -64,6 +64,7 @@
         redirectTo: '/login'
       });
   });
+  angular.module('app.directives', []);
 })();
 
 (function() {
@@ -192,6 +193,235 @@
 				};
 			}]);
 })();
+
+(function () {
+    'use strict';
+
+    angular.module('app.directives')
+      .directive('d3Bars', ['$window', function ($window) {
+          return {
+              restrict: 'EA',
+              scope: {
+                  data: "=",
+                  label: "@",
+                  outerLabel: "@",
+                  barColor: "@",
+                  onClick: "&"
+              },
+              link: function (scope, iElement, iAttrs) {
+                  var d3 = $window.d3;
+                  var svg = d3.select(iElement[0])
+                      .append("svg")
+                      .attr("width", "100%");
+
+                  // on window resize, re-render d3 canvas
+                  window.onresize = function () {
+                      return scope.$apply();
+                  };
+                  scope.$watch(function () {
+                      return angular.element(window)[0].innerWidth;
+                  }, function () {
+                      return scope.render((scope.data) ? scope.data : 1);
+                  }
+                  );
+
+                  // watch for data changes and re-render
+                  scope.$watch('data', function (newVals, oldVals) {
+                      return scope.render((newVals) ? newVals : 1);
+                  }, true);
+
+                  // define render function
+                  scope.render = function (data) {
+                      // remove all previous items before render
+                      svg.selectAll("*").remove();
+
+                      // setup variables
+                      var width, height, max;
+                      width = d3.select(iElement[0])[0][0].offsetWidth - 20;
+                      // 20 is for margins and can be changed
+                      height = (scope.data) ? scope.data.length * 35 : 1;
+                      // 35 = 30(bar height) + 5(margin between bars)
+                      max = 98;
+                      // this can also be found dynamically when the data is not static
+                      //max = Math.max.apply(Math, _.map(data, ((val)-> val.count)))
+
+                      // set the height based on the calculations above
+                      svg.attr('height', height);
+
+                      //create the rectangles for the bar chart
+                      svg.selectAll("rect")
+                        .data(data)
+                        .enter()
+                          .append("rect")
+                          .on("click", function (d, i) { return scope.onClick({ item: d }); })
+                          .attr("fill", function (d) { return d[scope.barColor]; })
+                          .attr("height", 30) // height of each bar
+                          .attr("width", 0) // initial width of 0 for transition
+                          .attr("x", 10) // half of the 20 side margin specified above
+                          .attr("y", function (d, i) {
+                              return i * 35;
+                          }) // height + margin between bars
+                          .transition()
+                            .duration(1000) // time of duration
+                            .attr("width", function (d) {
+                                return d.score / (max / width);
+                            }); // width based on scale
+
+                      svg.selectAll("amount")
+                        .data(data)
+                        .enter()
+                          .append("amount")
+                          .attr("style", 'display:block;')
+                          .attr("fill", function (d) { return d[scope.barColor]; })
+                          .attr("y", function (d, i) { return i * 35 + 22; })
+                          .attr("x", function (d) {
+                              return d.score / (max / width) + 20;
+                          })
+                          .text(function (d) { return d[scope.outerLabel]; });
+
+                      svg.selectAll("text")
+                        .data(data)
+                        .enter()
+                          .append("text")
+                          .attr("fill", "#fff")
+                          .attr("y", function (d, i) { return i * 35 + 22; })
+                          .attr("x", 15)
+                          .text(function (d) { return d[scope.label]; });
+
+                  };
+              }
+          };
+      }])
+	.directive('d3Donut', ['$window', function ($window) {
+		return {
+			restrict: 'EA',
+			scope: {
+				data: "=",
+				label: "@",
+				barColor: "@",
+				onClick: "&"
+			},
+			link: function (scope, iElement, iAttrs) {
+				var d3 = $window.d3;
+
+				var width = 600,
+					height = (width < 400) ? 300 : 500,
+					radius = Math.min(width, height) / 2;
+
+				var arc = d3.svg.arc()
+					.innerRadius(radius - 100)
+					.outerRadius(radius - 20);
+
+				var svg = d3.select(iElement[0])
+					.append("svg")
+				    .attr("width", '100%')
+				    .attr("height", '100%')
+				    .attr('viewBox','0 0 '+Math.min(width,height)+' '+Math.min(width,height))
+				    .attr('preserveAspectRatio','xMinYMin')
+					.append("g")
+					.attr("transform", "translate(" + Math.min(width,height) / 2 + "," + Math.min(width,height) / 2 + ")");
+
+				// define render function
+				scope.render = function (data) {
+					// remove all previous items before render
+					svg.selectAll("*").remove();
+
+					var color = d3.scale.category20();
+
+					var pie = d3.layout.pie()
+						.value(function(d) { return d.score; })
+						.sort(null);
+
+					svg.datum(data).selectAll("path")
+						.data(pie)
+						.enter().append("path")
+						.attr("fill", function(d, i) { return color(i); })
+						.attr("d", arc)
+						.each(function(d) { this._current = d; }); // store the initial angles
+				}
+
+
+
+				// on window resize, re-render d3 canvas
+				window.onresize = function () {
+					return scope.$apply();
+				};
+				scope.$watch(function () {
+					return angular.element(window)[0].innerWidth;
+				}, function () {
+					return scope.render((scope.data) ? scope.data : 1);
+				}
+				);
+
+				// watch for data changes and re-render
+				scope.$watch('data', function (newVals, oldVals) {
+					return scope.render((newVals) ? newVals : 1);
+				}, true);
+
+				// define render function
+				// scope.render = function (data) {
+				// 	// remove all previous items before render
+				// 	svg.selectAll("*").remove();
+				//
+				// 	// setup variables
+				// 	var width, height, max;
+				// 	width = d3.select(iElement[0])[0][0].offsetWidth - 20;
+				// 	// 20 is for margins and can be changed
+				// 	height = (scope.data) ? scope.data.length * 35 : 1;
+				// 	// 35 = 30(bar height) + 5(margin between bars)
+				// 	max = 98;
+				// 	// this can also be found dynamically when the data is not static
+				// 	//max = Math.max.apply(Math, _.map(data, ((val)-> val.count)))
+				//
+				// 	// set the height based on the calculations above
+				// 	svg.attr('height', height);
+				//
+				// 	//create the rectangles for the bar chart
+				// 	svg.selectAll("rect")
+				// 	.data(data)
+				// 	.enter()
+				// 		.append("rect")
+				// 		.on("click", function (d, i) { return scope.onClick({ item: d }); })
+				// 		.attr("fill", function (d) { return d[scope.barColor]; })
+				// 		.attr("height", 30) // height of each bar
+				// 		.attr("width", 0) // initial width of 0 for transition
+				// 		.attr("x", 10) // half of the 20 side margin specified above
+				// 		.attr("y", function (d, i) {
+				// 			return i * 35;
+				// 		}) // height + margin between bars
+				// 		.transition()
+				// 		.duration(1000) // time of duration
+				// 		.attr("width", function (d) {
+				// 			return d.score / (max / width);
+				// 		}); // width based on scale
+				//
+				// 	svg.selectAll("amount")
+				// 	.data(data)
+				// 	.enter()
+				// 		.append("amount")
+				// 		.attr("style", 'display:block;')
+				// 		.attr("fill", function (d) { return d[scope.barColor]; })
+				// 		.attr("y", function (d, i) { return i * 35 + 22; })
+				// 		.attr("x", function (d) {
+				// 			return d.score / (max / width) + 20;
+				// 		})
+				// 		.text(function (d) { return d[scope.outerLabel]; });
+				//
+				// 	svg.selectAll("text")
+				// 	.data(data)
+				// 	.enter()
+				// 		.append("text")
+				// 		.attr("fill", "#fff")
+				// 		.attr("y", function (d, i) { return i * 35 + 22; })
+				// 		.attr("x", 15)
+				// 		.text(function (d) { return d[scope.label]; });
+				//
+				// };
+			}
+		};
+	}]);
+
+}());
 
 (function() {
 	'use strict';
@@ -681,6 +911,7 @@
                 $scope.timeEntryDate = new Date(dateStr);
             }
             $scope.timeEntries = [];
+            $scope.projectTotalsForDay = [];
 
             $scope.previousDate = function () {
                 $scope.timeEntryDate.setDate($scope.timeEntryDate.getDate() - 1);
@@ -705,6 +936,7 @@
                 httpService.getCollection('timeentries/date/' + dateStr).then(function(entries) {
                     $scope.timeEntries = entries;
                     getColorClassForEntries($scope.timeEntries);
+                    getProjectTotals($scope.timeEntries);
                 });
             };
 
@@ -723,19 +955,63 @@
             var getColorClass = function (num1,num2) {
                 var colorClass = 'project-color-';
                 var num = 0;
-                var num1 = num1.toString().slice(-1);
-                var num2 = num2.toString().slice(-1);
+                num1 = num1.toString().slice(-1);
+                num2 = num2.toString().slice(-1);
                 if(num1 > num2) {
                     num = num2 / num1;
                 } else {
                     num = num1 / num2;
                 }
-                colorClass = colorClass + Math.floor(num * 10);
+                colorClass = colorClass + Math.floor(num * 9);
                 return colorClass;
             };
 
-            getTimeEntries();
+            var getProjectTotals = function(entries) {
+                var tmpProjectTotals = [];
+                var totalTime = 0;
+                for(var i = 0; i < entries.length; i++) {
+                    var id = entries[i].ProjectTaskId;
+                    var entryTime = parseFloat(entries[i].TotalTimeDisplay);
+                    totalTime = totalTime + entryTime;
+                    if(tmpProjectTotals[id]) {
+                        tmpProjectTotals[id].score = tmpProjectTotals[id].score + entryTime;
+                    } else {
+                        tmpProjectTotals[id] = {
+                            score: entryTime
+                        };
+                    }
+                    tmpProjectTotals[id].name = entries[i].ProjectName;
+                    tmpProjectTotals[id].color = '#33ff21';
+                }
 
+                for(var x in tmpProjectTotals) {
+                    var percent = (tmpProjectTotals[x].score / totalTime) * 100;
+                    tmpProjectTotals[x].score = percent;
+                    $scope.projectTotalsForDay.push(tmpProjectTotals[x]);
+                }
+            };
+
+            //getTimeEntries();
+            var date = $scope.timeEntryDate;
+            var dateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
+            httpService.getCollection('timeentries/date/' + dateStr).then(function(entries) {
+                $scope.timeEntries = entries;
+                getColorClassForEntries($scope.timeEntries);
+                getProjectTotals($scope.timeEntries);
+            });
+
+            // $scope.projectTotalsForDay = [
+            //     {
+            //         name: 'Thing #1',
+            //         score: 90,
+            //         color: 'red'
+            //     },
+            //     {
+            //         name: 'Thing #2',
+            //         score: 30,
+            //         color: 'blue'
+            //     }
+            // ];
 
         }]);
 })();
@@ -778,7 +1054,6 @@
 			// Load list of projects for select list
 			httpService.getCollection('projects').then(function(projects) {
 				$scope.availableProjects = projects;
-				checkAndUpdateProjectColor(projects);
 			});
 
 			$scope.availableContexts = [
@@ -856,25 +1131,9 @@
 			// 	var	contextStr = regex.exec(str);
 			// };
 
-			// var generateColorIndex = function (min,max) {
-			// 	return Math.floor(Math.random() * (max - min) + min);
-			// };
-			//
-			// var checkAndUpdateProjectColor = function (projects) {
-			// 	for (var i = 0; i < projects.length; i++) {
-			// 		var colorId = projects[i].ExternalSystemKey;
-			// 		if (!colorId || !(colorId > 0 && colorId < 20)) {
-			// 			projects[i].ExternalSystemKey = generateColorIndex(1,19);
-			// 			httpService.updateItem('projects', projects[i].ProjectId, projects[i]);
-			// 		}
-			// 	}
-			// };
-
 			var createProject = function (str,cb) {
 				var newProjectID = null;
-				var data = {
-						Name: str
-					};
+				var data = { Name: str };
 				httpService.createItem('projects', data).then(function(project) {
 					newProjectID = project.ProjectId;
 					var data = {

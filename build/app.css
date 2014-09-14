@@ -6213,3 +6213,16 @@ body {
   background-color: #32aa34;
   color: #fff;
 }
+.d3 {
+  display: block;
+  text-align: center;
+}
+.donut-chart svg {
+  max-width: 50%;
+  height: auto;
+}
+@media (min-width: 992px) {
+  .donut-chart svg {
+    max-width: 25%;
+  }
+}

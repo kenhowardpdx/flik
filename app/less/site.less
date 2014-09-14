@@ -49,3 +49,18 @@ body {
         .-((@i - 1));
     } .-;
 }
+
+.d3 {
+    display: block;
+    text-align: center;
+}
+
+.donut-chart {
+    svg {
+        max-width: 50%;
+        height: auto;
+        @media (min-width: @screen-md) {
+            max-width: 25%;
+        }
+    }
+}

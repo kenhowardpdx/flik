@@ -10,6 +10,7 @@
     "underscore": "~1.6.0",
     "angularjs-toaster": "~0.4.7",
     "angular-cookies": "~1.2.23",
-    "angular-busy": "~4.1.0"
+    "angular-busy": "~4.1.0",
+    "d3": "~3.4.11"
   }
 }
