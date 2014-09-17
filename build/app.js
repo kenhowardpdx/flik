@@ -357,66 +357,6 @@
 				scope.$watch('data', function (newVals, oldVals) {
 					return scope.render((newVals) ? newVals : 1);
 				}, true);
-
-				// define render function
-				// scope.render = function (data) {
-				// 	// remove all previous items before render
-				// 	svg.selectAll("*").remove();
-				//
-				// 	// setup variables
-				// 	var width, height, max;
-				// 	width = d3.select(iElement[0])[0][0].offsetWidth - 20;
-				// 	// 20 is for margins and can be changed
-				// 	height = (scope.data) ? scope.data.length * 35 : 1;
-				// 	// 35 = 30(bar height) + 5(margin between bars)
-				// 	max = 98;
-				// 	// this can also be found dynamically when the data is not static
-				// 	//max = Math.max.apply(Math, _.map(data, ((val)-> val.count)))
-				//
-				// 	// set the height based on the calculations above
-				// 	svg.attr('height', height);
-				//
-				// 	//create the rectangles for the bar chart
-				// 	svg.selectAll("rect")
-				// 	.data(data)
-				// 	.enter()
-				// 		.append("rect")
-				// 		.on("click", function (d, i) { return scope.onClick({ item: d }); })
-				// 		.attr("fill", function (d) { return d[scope.barColor]; })
-				// 		.attr("height", 30) // height of each bar
-				// 		.attr("width", 0) // initial width of 0 for transition
-				// 		.attr("x", 10) // half of the 20 side margin specified above
-				// 		.attr("y", function (d, i) {
-				// 			return i * 35;
-				// 		}) // height + margin between bars
-				// 		.transition()
-				// 		.duration(1000) // time of duration
-				// 		.attr("width", function (d) {
-				// 			return d.score / (max / width);
-				// 		}); // width based on scale
-				//
-				// 	svg.selectAll("amount")
-				// 	.data(data)
-				// 	.enter()
-				// 		.append("amount")
-				// 		.attr("style", 'display:block;')
-				// 		.attr("fill", function (d) { return d[scope.barColor]; })
-				// 		.attr("y", function (d, i) { return i * 35 + 22; })
-				// 		.attr("x", function (d) {
-				// 			return d.score / (max / width) + 20;
-				// 		})
-				// 		.text(function (d) { return d[scope.outerLabel]; });
-				//
-				// 	svg.selectAll("text")
-				// 	.data(data)
-				// 	.enter()
-				// 		.append("text")
-				// 		.attr("fill", "#fff")
-				// 		.attr("y", function (d, i) { return i * 35 + 22; })
-				// 		.attr("x", 15)
-				// 		.text(function (d) { return d[scope.label]; });
-				//
-				// };
 			}
 		};
 	}]);
@@ -583,6 +523,42 @@
 		};
 
 	}]);
+})();
+
+(function() {
+    'use strict';
+
+    angular.module('app')
+        .controller('SignupCtrl', ['$rootScope','$scope','httpService','UserServices', function ($rootScope, $scope, httpService, UserServices) {
+
+            var newUser = {
+                Username: '',
+                Email: '',
+                Password: '',
+                UserID: null
+            };
+
+            $scope.errors = false; // hides the error panel
+
+            $scope.createUser = function() {
+
+                newUser = {
+                    Password: $scope.password,
+                    UserName: UserServices.saltUserName($scope.username),
+                    Name    : $scope.name,
+                    Email   : $scope.email,
+                    TimeZoneId : 'Pacific Standard Time',
+                    UseStopwatchApproachToTimeEntry: false,
+                    ExternalSystemKey : 'CTRS*'
+                };
+
+                httpService.createItem('users', newUser).then(function(user) {
+                    $rootScope.user = user;
+                    UserServices.login($scope.username,$scope.password);
+                });
+            };
+
+        }]);
 })();
 
 (function() {
@@ -860,42 +836,6 @@
 			}
 		};
 	}]);
-})();
-
-(function() {
-    'use strict';
-
-    angular.module('app')
-        .controller('SignupCtrl', ['$rootScope','$scope','httpService','UserServices', function ($rootScope, $scope, httpService, UserServices) {
-
-            var newUser = {
-                Username: '',
-                Email: '',
-                Password: '',
-                UserID: null
-            };
-
-            $scope.errors = false; // hides the error panel
-
-            $scope.createUser = function() {
-
-                newUser = {
-                    Password: $scope.password,
-                    UserName: UserServices.saltUserName($scope.username),
-                    Name    : $scope.name,
-                    Email   : $scope.email,
-                    TimeZoneId : 'Pacific Standard Time',
-                    UseStopwatchApproachToTimeEntry: false,
-                    ExternalSystemKey : 'CTRS*'
-                };
-
-                httpService.createItem('users', newUser).then(function(user) {
-                    $rootScope.user = user;
-                    UserServices.login($scope.username,$scope.password);
-                });
-            };
-
-        }]);
 })();
 
 (function() {
