@@ -1,5 +1,5 @@
 body {
-  padding-top: @navbar-height;
+  // padding-top: @navbar-height;
 }
 
 .toolbar {
@@ -7,6 +7,47 @@ body {
     clear: both;
     with: 100%;
     float: none;
+}
+
+.navbar-citrus {
+    position: relative;
+    z-index: 1002;
+    margin-bottom: 0;
+    background-color: @brand-primary;
+    .navbar-nav {
+        &> li {
+            &> a {
+                color: #fff;
+            }
+        }
+
+        &> .active {
+            &> a,
+            &> a:hover,
+            &> a:focus {
+                color: #fff;
+                background-color: darken(@brand-primary, 20%);
+            }
+        }
+    }
+
+    .navbar-toggle {
+        border-color: darken(@brand-primary, 20%);
+        .icon-bar {
+            background-color: #fff;
+        }
+    }
+
+    .navbar-toggle:hover, .navbar-toggle:focus {
+        background-color: darken(@brand-primary, 20%);
+    }
+
+    .navbar-collapse, .navbar-form {
+        border-color: darken(@brand-primary, 20%);
+    }
+}
+
+.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {
 }
 
 .nav.navbar-vertical {
@@ -17,21 +58,7 @@ body {
     }
 }
 
-// @iterations: 10;
 @colors: #32aa34,#2af3ff,#dc0300,#fb9fa3,#3da3ff,#f28200,#92f0ff,#ddac00,#8b000f,#d3ff00;
-
-// .project-colors {
-//     .-(@i: length(@colors)) when (@i > 0) {
-//         @name: e(extract(@colors, @i));
-//         &.@{name} {background: @@name}
-//         .-((@i - 1));
-//     } .-;
-// }
-// .project-color {
-//     .for(@colors); .-each(@i) {
-//         &-@{i} {background-color: @colors}
-//     }
-// }
 
 .project-color {
     .-(@i: length(@colors)) when (@i > 0) {
@@ -62,5 +89,22 @@ body {
         @media (min-width: @screen-md) {
             max-width: 25%;
         }
+    }
+}
+
+.navbar-brand {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    position: relative;
+    margin-right: 15px;
+    img {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 15px;
+        margin: auto auto;
+        max-width: 100%;
+        height: auto;
     }
 }

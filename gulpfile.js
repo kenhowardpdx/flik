@@ -67,6 +67,11 @@ gulp.task('copy-index', function() {
         .pipe(gulp.dest('./build'));
 });
 
+gulp.task('copy-images', function() {
+    gulp.src('./app/images/**/*')
+    .pipe(gulp.dest('./build/images'));
+});
+
 gulp.task('watch',function(){
     gulp.watch([
         'build/**/*.html',
@@ -80,6 +85,7 @@ gulp.task('watch',function(){
     gulp.watch(['!./app/index.html','./app/**/*.html'],['templates']);
     gulp.watch('./app/**/*.less',['css']);
     gulp.watch('./app/index.html',['copy-index']);
+    gulp.watch('./app/images/**/*',['copy-images']);
 
 });
 
@@ -89,5 +95,5 @@ gulp.task('connect', plugins.connect.server({
     livereload: true
 }));
 
-gulp.task('build',['scripts','templates','css','copy-index','vendorJS','vendorCSS','vendorFonts']);
+gulp.task('build',['scripts','templates','css','copy-index','copy-images','vendorJS','vendorCSS','vendorFonts']);
 gulp.task('default',['connect','build','watch']);
