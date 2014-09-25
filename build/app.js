@@ -112,7 +112,7 @@
     var configData = {
         'CONFIG': {
             'DEBUG': true,
-            'SITE_NAME': 'Citrus',
+            'SITE_NAME': 'Flik',
             'APP_VERSION': '1.0.0',
             'API_URL': 'https://csgprohackathonapi.azurewebsites.net/',
             'USERNAME_PREFIX': 'c*'
