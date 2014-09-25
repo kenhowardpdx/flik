@@ -142,7 +142,7 @@
 						.attr("fill", function(d, i) { return color(i); })
 						.attr("d", arc)
 						.each(function(d) { this._current = d; }); // store the initial angles
-				}
+				};
 
 
 
