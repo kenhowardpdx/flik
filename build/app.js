@@ -526,42 +526,6 @@
 })();
 
 (function() {
-    'use strict';
-
-    angular.module('app')
-        .controller('SignupCtrl', ['$rootScope','$scope','httpService','UserServices', function ($rootScope, $scope, httpService, UserServices) {
-
-            var newUser = {
-                Username: '',
-                Email: '',
-                Password: '',
-                UserID: null
-            };
-
-            $scope.errors = false; // hides the error panel
-
-            $scope.createUser = function() {
-
-                newUser = {
-                    Password: $scope.password,
-                    UserName: UserServices.saltUserName($scope.username),
-                    Name    : $scope.name,
-                    Email   : $scope.email,
-                    TimeZoneId : 'Pacific Standard Time',
-                    UseStopwatchApproachToTimeEntry: false,
-                    ExternalSystemKey : 'CTRS*'
-                };
-
-                httpService.createItem('users', newUser).then(function(user) {
-                    $rootScope.user = user;
-                    UserServices.login($scope.username,$scope.password);
-                });
-            };
-
-        }]);
-})();
-
-(function() {
 	'use strict';
 
 	angular.module('app')
@@ -842,13 +806,54 @@
     'use strict';
 
     angular.module('app')
+        .controller('SignupCtrl', ['$rootScope','$scope','httpService','UserServices', function ($rootScope, $scope, httpService, UserServices) {
+
+            var newUser = {
+                Username: '',
+                Email: '',
+                Password: '',
+                UserID: null
+            };
+
+            $scope.errors = false; // hides the error panel
+
+            $scope.createUser = function() {
+
+                newUser = {
+                    Password: $scope.password,
+                    UserName: UserServices.saltUserName($scope.username),
+                    Name    : $scope.name,
+                    Email   : $scope.email,
+                    TimeZoneId : 'Pacific Standard Time',
+                    UseStopwatchApproachToTimeEntry: false,
+                    ExternalSystemKey : 'CTRS*'
+                };
+
+                httpService.createItem('users', newUser).then(function(user) {
+                    $rootScope.user = user;
+                    UserServices.login($scope.username,$scope.password);
+                });
+            };
+
+        }]);
+})();
+
+(function() {
+    'use strict';
+
+    angular.module('app')
         .controller('TimeEntriesCtrl', ['$scope','httpService','$location','$routeParams', function ($scope, httpService, $location, $routeParams) {
 
-            var dateStr = $routeParams.dateStr;
+            var activeDate = {};
 
             $scope.timeEntryDate = new Date();
-            if(dateStr) {
-                $scope.timeEntryDate = new Date(dateStr);
+            if($routeParams.dateStr) {
+                var dateArray = $routeParams.dateStr.split('-');
+                activeDate.Year = dateArray[2];
+                activeDate.Month = dateArray[0] - 1;
+                activeDate.Day = dateArray[1];
+
+                $scope.timeEntryDate = new Date(activeDate.Year, activeDate.Month, activeDate.Day);
             }
             $scope.timeEntries = [];
             $scope.projectTotalsForDay = [];

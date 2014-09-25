@@ -4,11 +4,16 @@
     angular.module('app')
         .controller('TimeEntriesCtrl', ['$scope','httpService','$location','$routeParams', function ($scope, httpService, $location, $routeParams) {
 
-            var dateStr = $routeParams.dateStr;
+            var activeDate = {};
 
             $scope.timeEntryDate = new Date();
-            if(dateStr) {
-                $scope.timeEntryDate = new Date(dateStr);
+            if($routeParams.dateStr) {
+                var dateArray = $routeParams.dateStr.split('-');
+                activeDate.Year = dateArray[2];
+                activeDate.Month = dateArray[0] - 1;
+                activeDate.Day = dateArray[1];
+
+                $scope.timeEntryDate = new Date(activeDate.Year, activeDate.Month, activeDate.Day);
             }
             $scope.timeEntries = [];
             $scope.projectTotalsForDay = [];
