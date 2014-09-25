@@ -10,15 +10,12 @@
     <button type="button" class="btn btn-default" ng-click="nextDate()"><span class="glyphicon glyphicon-chevron-right"></span></button>
 </div>
 
-<d3-donut data="projectTotalsForDay" label="name" bar-color="color" class="row d3 donut-chart"></d3-donut>
+<d3-donut data="projectTotalsForDay" label="name" class="row d3 donut-chart"></d3-donut>
 
 <ul class="timeEntries nav navbar-vertical">
     <li ng-repeat="entry in timeEntries" ng-click="editEntry(entry)">
-        <div class="col-xs-9">
+        <div class="col-xs-12">
             <span ng-bind="entry.Comment"></span>
-        </div>
-        <div class="col-xs-3 {{entry.ProjectColorClass}}">
-            <span ng-bind="entry.Hours"></span>
         </div>
     </li>
 </ul>

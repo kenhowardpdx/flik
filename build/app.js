@@ -861,15 +861,15 @@
             $scope.previousDate = function () {
                 $scope.timeEntryDate.setDate($scope.timeEntryDate.getDate() - 1);
                 var date = $scope.timeEntryDate;
-                var dateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
-                $location.url('time/' + dateStr);
+                var newDateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
+                $location.url('time/' + newDateStr);
             };
 
             $scope.nextDate = function () {
                 $scope.timeEntryDate.setDate($scope.timeEntryDate.getDate() + 1);
                 var date = $scope.timeEntryDate;
-                var dateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
-                $location.url('time/' + dateStr);
+                var newDateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
+                $location.url('time/' + newDateStr);
             };
 
             $scope.editEntry = function (entry) {
