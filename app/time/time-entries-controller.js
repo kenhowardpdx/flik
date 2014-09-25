@@ -18,7 +18,6 @@
                 var date = $scope.timeEntryDate;
                 var dateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
                 $location.url('time/' + dateStr);
-                //getTimeEntries();
             };
 
             $scope.nextDate = function () {
@@ -26,24 +25,12 @@
                 var date = $scope.timeEntryDate;
                 var dateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
                 $location.url('time/' + dateStr);
-                //getTimeEntries();
-            };
-
-            var getTimeEntries = function () {
-                // Get the list of time entries
-                var date = $scope.timeEntryDate;
-                var dateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
-                httpService.getCollection('timeentries/date/' + dateStr).then(function(entries) {
-                    $scope.timeEntries = entries;
-                    getColorClassForEntries($scope.timeEntries);
-                    getProjectTotals($scope.timeEntries);
-                });
             };
 
             $scope.editEntry = function (entry) {
                 var date = $scope.timeEntryDate;
-                var dateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
-                $location.url('/time/edit/' + dateStr + '/' + entry.TimeEntryId);
+                var newDateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
+                $location.url('/time/edit/' + newDateStr + '/' + entry.TimeEntryId);
             };
 
             var getColorClassForEntries = function (entries) {
@@ -91,27 +78,13 @@
                 }
             };
 
-            //getTimeEntries();
             var date = $scope.timeEntryDate;
-            var dateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
-            httpService.getCollection('timeentries/date/' + dateStr).then(function(entries) {
+            var newDateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
+            httpService.getCollection('timeentries/date/' + newDateStr).then(function(entries) {
                 $scope.timeEntries = entries;
                 getColorClassForEntries($scope.timeEntries);
                 getProjectTotals($scope.timeEntries);
             });
-
-            // $scope.projectTotalsForDay = [
-            //     {
-            //         name: 'Thing #1',
-            //         score: 90,
-            //         color: 'red'
-            //     },
-            //     {
-            //         name: 'Thing #2',
-            //         score: 30,
-            //         color: 'blue'
-            //     }
-            // ];
 
         }]);
 })();
