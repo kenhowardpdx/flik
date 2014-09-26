@@ -92,6 +92,10 @@ body {
     }
 }
 
+.collapse {
+    display: none;
+}
+
 .navbar-brand {
     padding-top: 2px;
     padding-bottom: 2px;
@@ -106,5 +110,41 @@ body {
         margin: auto auto;
         max-width: 100%;
         height: auto;
+    }
+}
+
+.btn-group {
+    margin: 20px 0;
+    width: 100%;
+    .btn {
+        width: 10%;
+        &:nth-child(2) {
+            width: 80%
+        }
+
+        .glyphicon-chevron-left {
+            left: -6px;
+        }
+        .glyphicon-chevron-right {
+            right: 6px;
+        }
+    }
+}
+
+.timeEntries {
+    margin-top: 20px;
+    li {
+        font-size: 18px;
+        padding: 0 0 10px;
+        &:hover {
+            cursor: pointer;
+        }
+    }
+}
+
+.comment-input {
+    padding-top: 20px;
+    input {
+        font-size: 18px;
     }
 }

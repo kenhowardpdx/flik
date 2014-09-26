@@ -884,7 +884,7 @@ body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
   line-height: 1.42857143;
-  color: #333333;
+  color: #777777;
   background-color: #ffffff;
 }
 input,
@@ -2618,7 +2618,7 @@ select[multiple].input-lg {
   display: block;
   margin-top: 5px;
   margin-bottom: 10px;
-  color: #737373;
+  color: #b7b7b7;
 }
 @media (min-width: 768px) {
   .form-inline .form-group {
@@ -4586,7 +4586,7 @@ a.thumbnail.active {
 }
 .thumbnail .caption {
   padding: 9px;
-  color: #333333;
+  color: #777777;
 }
 .alert {
   padding: 15px;
@@ -6252,6 +6252,9 @@ button.close {
     max-width: 25%;
   }
 }
+.collapse {
+  display: none;
+}
 .navbar-brand {
   padding-top: 2px;
   padding-bottom: 2px;
@@ -6267,4 +6270,36 @@ button.close {
   margin: auto auto;
   max-width: 100%;
   height: auto;
+}
+.btn-group {
+  margin: 20px 0;
+  width: 100%;
+}
+.btn-group .btn {
+  width: 10%;
+}
+.btn-group .btn:nth-child(2) {
+  width: 80%;
+}
+.btn-group .btn .glyphicon-chevron-left {
+  left: -6px;
+}
+.btn-group .btn .glyphicon-chevron-right {
+  right: 6px;
+}
+.timeEntries {
+  margin-top: 20px;
+}
+.timeEntries li {
+  font-size: 18px;
+  padding: 0 0 10px;
+}
+.timeEntries li:hover {
+  cursor: pointer;
+}
+.comment-input {
+  padding-top: 20px;
+}
+.comment-input input {
+  font-size: 18px;
 }

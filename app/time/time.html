@@ -1,21 +1,24 @@
-<h2>{{ pageTitle }}</h2>
-
-<div class="toolbar">
-    <a class="btn btn-default btn-md" ng-href="#time/add/{{timeEntryDate | aDate : 'M-d-y'}}"><span class="glyphicon glyphicon-plus"></span> Add Time</a>
-</div>
-<br />
 <div class="btn-group">
-    <button type="button" class="btn btn-default" ng-click="previousDate()"><span class="glyphicon glyphicon-chevron-left"></span></button>
-    <button class="btn btn-default">{{ timeEntryDate | aDate : 'EEEE, MMMM doo, y' }}</button>
-    <button type="button" class="btn btn-default" ng-click="nextDate()"><span class="glyphicon glyphicon-chevron-right"></span></button>
+    <button type="button" class="btn btn-default btn-lg" ng-click="previousDate()"><span class="glyphicon glyphicon-chevron-left"></span></button>
+    <button class="btn btn-default btn-lg">{{ timeEntryDate | aDate : 'EEEE, MMMM doo, y' }}</button>
+    <button type="button" class="btn btn-default btn-lg" ng-click="nextDate()"><span class="glyphicon glyphicon-chevron-right"></span></button>
 </div>
 
-<d3-donut data="projectTotalsForDay" label="name" class="row d3 donut-chart"></d3-donut>
+<div class="toolbar row">
+    <div class="col-xs-6">
+        <a class="btn btn-primary btn-lg btn-block" ng-href="#time/add/{{timeEntryDate | aDate : 'M-d-y'}}"><span class="glyphicon glyphicon-plus"></span> Add Time</a>
+    </div>
+    <div class="col-xs-6">
+        <button class="btn btn-default btn-lg btn-block" ng-click="toggleChart()" ng-disabled="!timeEntries.length">
+            <span class="glyphicon glyphicon-chart"></span><span ng-bind="chartBtnLabel"></span>
+        </button>
+    </div>
+</div>
+
+<d3-donut data="projectTotalsForDay" label="name" class="row d3 donut-chart" collapse="chartCollapsed" class="collapse"></d3-donut>
 
 <ul class="timeEntries nav navbar-vertical">
     <li ng-repeat="entry in timeEntries" ng-click="editEntry(entry)">
-        <div class="col-xs-12">
-            <span ng-bind="entry.Comment"></span>
-        </div>
+        <span ng-bind="entry.Comment"></span>
     </li>
 </ul>

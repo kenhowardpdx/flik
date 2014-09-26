@@ -1,16 +1,18 @@
-<h2>{{ pageTitle }}</h2>
-<h3>{{ timeEntryDate | aDate : 'EEEE, MMMM doo, y' }}</h3>
+<h4>{{ timeEntryDate | aDate : 'EEEE, MMMM doo, y' }}</h4>
 
 <div class="toolbar row">
-	<div class="pull-right">
-		<button class="btn btn-success btn-sm" ng-click="saveRecord()"><span class="glyphicon glyphicon-save"></span> Save</button>
-		<a class="btn btn-default btn-sm" href="#time"><span class="glyphicon glyphicon-remove"></span> Cancel</a>
+	<div class="col-xs-6">
+		<button class="btn btn-primary btn-lg btn-block" ng-click="saveRecord()"><span class="glyphicon glyphicon-plus"></span> Save</button>
+	</div>
+	<div class="col-xs-6">
+		<a class="btn btn-warning btn-lg btn-block" href="#time">
+			<span class="glyphicon glyphicon-remove"></span> Cancel
+		</a>
 	</div>
 </div>
 
 <div class="row">
-	<div class="col-sm-6 form-group">
-		<label for="comment">Comment:</label>
+	<div class="col-sm-6 form-group comment-input">
 		<comment hashitems="availableProjects" atitems="availableContexts" prompt="What did you do today?" title="Name" model="Comment" selected-hash-items="selectedProjects" selected-at-items="selectedContexts" />
 	</div>
 </div>

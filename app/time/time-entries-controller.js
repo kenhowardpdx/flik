@@ -7,6 +7,19 @@
             var activeDate = {};
 
             $scope.timeEntryDate = new Date();
+            $scope.chartCollapsed = true;
+            var defaultChartBtnLabel = 'Show Chart';
+            $scope.chartBtnLabel = defaultChartBtnLabel;
+
+            $scope.toggleChart = function() {
+                if($scope.chartCollapsed) {
+                    $scope.chartBtnLabel = 'Hide Chart';
+                } else {
+                    $scope.chartBtnLabel = defaultChartBtnLabel;
+                }
+                $scope.chartCollapsed = $scope.chartCollapsed ? false : true;
+            }
+
             if($routeParams.dateStr) {
                 var dateArray = $routeParams.dateStr.split('-');
                 activeDate.Year = dateArray[2];
@@ -87,7 +100,6 @@
             var newDateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
             httpService.getCollection('timeentries/date/' + newDateStr).then(function(entries) {
                 $scope.timeEntries = entries;
-                getColorClassForEntries($scope.timeEntries);
                 getProjectTotals($scope.timeEntries);
             });
 
