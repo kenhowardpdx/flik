@@ -10,6 +10,7 @@
 						atitems: '=',
 						prompt: '@',
 						title: '@',
+						placeholder: '@',
 						model: '=',
 						selectedHashItems: '=',
 						selectedAtItems: '='
