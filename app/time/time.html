@@ -22,7 +22,7 @@
 </div>
 
 <ul class="timeEntries nav navbar-vertical">
-    <li ng-repeat="entry in timeEntries" ng-click="editEntry(entry)" class="row">
+    <li ng-repeat="entry in timeEntries" ng-click="editEntry(entry)" class="row" ng-show="entry.Revealed">
         <div class="row">
             <div ng-bind="entry.Comment" class="col-xs-9 comment"></div>
             <div ng-bind="entry.TotalTimeDisplay" class="col-xs-2 hours-pill pill" ng-style="{ 'color': entry.Color, 'background-color': entry.BackgroundColor }"></div>
