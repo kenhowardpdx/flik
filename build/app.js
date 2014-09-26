@@ -388,6 +388,13 @@
 })();
 
 (function() {
+	'use strict';
+	angular.module('app')
+		.controller('MainCtrl', [function () {
+		}]);
+})();
+
+(function() {
     'use strict';
 
     angular.module('app')
@@ -399,13 +406,6 @@
         .controller('LogOutCtrl', function ($scope, UserServices) {
             UserServices.logout();
         });
-})();
-
-(function() {
-	'use strict';
-	angular.module('app')
-		.controller('MainCtrl', [function () {
-		}]);
 })();
 
 (function() {

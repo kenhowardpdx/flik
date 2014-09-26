@@ -147,27 +147,33 @@ body {
 .timeEntries {
     margin-top: 20px;
     li {
-        clear: both;
-        border-top: 1px dashed @gray-lighter;
-        font-size: 18px;
-        padding: 10px 0;
-        &:hover {
-            cursor: pointer;
-            background-color: @brand-primary;
-            color: #fff;
-            border-top-color: #fff;
-            span {
-                border-left: 2px solid @brand-primary!important;
+        &.collapse {
+            display: none;
+            &.in {
+                display: block;
             }
         }
-        .hours-pill {
-            border-radius: 25px;
-            padding: 5px 0;
-            margin: 0;
-            text-align: center;
-        }
-        &:last-child {
-            border-bottom: 1px solid @gray-lighter;
+        > div {
+            border-top: 1px dashed @gray-lighter;
+            font-size: 18px;
+            &:hover {
+                cursor: pointer;
+                background-color: @brand-primary;
+                color: #fff;
+                border-top-color: #fff;
+                span {
+                    border-left: 2px solid @brand-primary!important;
+                }
+            }
+            .hours-pill {
+                border-radius: 25px;
+                padding: 5px 0;
+                margin: 0;
+                text-align: center;
+            }
+            &:last-child {
+                border-bottom: 1px solid @gray-lighter;
+            }
         }
     }
 }
