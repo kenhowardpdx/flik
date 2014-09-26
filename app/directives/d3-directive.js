@@ -138,10 +138,12 @@
 
 					svg.datum(data).selectAll("path")
 						.data(pie)
-						.enter().append("path")
-						.attr("fill", function(d, i) { return color(i); })
-						.attr("d", arc)
-						.each(function(d) { this._current = d; }); // store the initial angles
+						.enter()
+                            .append("path")
+                            .on("click", function (d, i) { d.color = color(i); return scope.onClick({ item: d }); })
+    						.attr("fill", function(d, i) { return color(i); })
+    						.attr("d", arc)
+    						.each(function(d) { this._current = d; }); // store the initial angles
 				};
 
 

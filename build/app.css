@@ -6301,11 +6301,25 @@ button.close {
   margin-top: 20px;
 }
 .timeEntries li {
+  border-top: 1px dashed #eeeeee;
   font-size: 18px;
-  padding: 0 0 10px;
+  padding: 10px 0;
 }
 .timeEntries li:hover {
   cursor: pointer;
+  background-color: #61e0f3;
+  color: #fff;
+  border-top-color: #fff;
+}
+.timeEntries li:hover span {
+  border-left: 2px solid #61e0f3 !important;
+}
+.timeEntries li span {
+  display: block;
+  padding-left: 10px;
+}
+.timeEntries li:last-child {
+  border-bottom: 1px solid #eeeeee;
 }
 .comment-input {
   padding-top: 20px;

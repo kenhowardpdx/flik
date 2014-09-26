@@ -143,10 +143,24 @@ body {
 .timeEntries {
     margin-top: 20px;
     li {
+        border-top: 1px dashed @gray-lighter;
         font-size: 18px;
-        padding: 0 0 10px;
+        padding: 10px 0;
         &:hover {
             cursor: pointer;
+            background-color: @brand-primary;
+            color: #fff;
+            border-top-color: #fff;
+            span {
+                border-left: 2px solid @brand-primary!important;
+            }
+        }
+        span {
+            display: block;
+            padding-left: 10px;
+        }
+        &:last-child {
+            border-bottom: 1px solid @gray-lighter;
         }
     }
 }

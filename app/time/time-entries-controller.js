@@ -10,6 +10,7 @@
             $scope.chartCollapsed = true;
             var defaultChartBtnLabel = 'Show Chart';
             $scope.chartBtnLabel = defaultChartBtnLabel;
+            $scope.selected = {};
 
             $scope.toggleChart = function() {
                 if($scope.chartCollapsed) {
@@ -18,6 +19,18 @@
                     $scope.chartBtnLabel = defaultChartBtnLabel;
                 }
                 $scope.chartCollapsed = $scope.chartCollapsed ? false : true;
+            }
+
+            $scope.revealEntries = function(item) {
+                setBorderStyleForEntries($scope.timeEntries);
+                for(var i = 0; i < $scope.timeEntries.length; i++) {
+                    var entry = $scope.timeEntries[i];
+                    if(item.data.name == entry.ProjectName) {
+                        $scope.$apply(function() {
+                            entry.BorderStyle = '4px solid ' + item.color;
+                        });
+                    }
+                }
             }
 
             if($routeParams.dateStr) {
@@ -48,9 +61,9 @@
                 $location.url('/time/edit/' + newDateStr + '/' + entry.TimeEntryId);
             };
 
-            var getColorClassForEntries = function (entries) {
+            var setBorderStyleForEntries = function (entries) {
                 for(var i = 0; i < entries.length; i++) {
-                    entries[i].ProjectColorClass = getColorClass(entries[i].ProjectRoleId,entries[i].ProjectTaskId);
+                    entries[i].BorderStyle = '4px solid #fff';
                 }
             };
 
@@ -97,6 +110,7 @@
             var newDateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
             httpService.getCollection('timeentries/date/' + newDateStr).then(function(entries) {
                 $scope.timeEntries = entries;
+                setBorderStyleForEntries($scope.timeEntries);
                 getProjectTotals($scope.timeEntries);
             });
 
