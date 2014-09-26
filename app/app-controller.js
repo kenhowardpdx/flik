@@ -22,15 +22,15 @@
 
 			$rootScope.$on( '$routeChangeStart', function(event, next) {
 
-			if (!$rootScope.loggedUser && !$cookieStore.get('authdata')) {
-				if ( next.templateUrl !== 'views/login.html' && next.templateUrl !== 'signup/signup.html' ) {
-				$location.path( '/login' );
+				if (!$rootScope.loggedUser && !$cookieStore.get('authdata')) {
+					if ( next.templateUrl !== 'views/login.html' && next.templateUrl !== 'signup/signup.html' ) {
+						$location.path( '/login' );
+					}
+				} else {
+					if ( next.templateUrl === 'main/main.html' || next.templateUrl === 'login/login.html' || next.templateUrl === 'signup/signup.html' ) {
+						$location.path( '/time' );
+					}
 				}
-			} else {
-				if ( next.templateUrl === 'login/login.html' || next.templateUrl === 'signup/signup.html' ) {
-				$location.path( '/' );
-				}
-			}
 			});
 		});
 })();

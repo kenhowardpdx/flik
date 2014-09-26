@@ -5,9 +5,7 @@
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
-        templateUrl: 'main/main.html',
-        controller: 'MainCtrl',
-        title: 'Home'
+        redirectTo: '/time'
       })
       .when('/login', {
         templateUrl: 'login/login.html',
