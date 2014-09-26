@@ -291,14 +291,15 @@
               }
           };
       }])
-	.directive('d3Donut', ['$window', function ($window) {
+	.directive('d3Donut', ['$window','$timeout', function ($window, $timeout) {
 		return {
 			restrict: 'EA',
 			scope: {
 				data: "=",
 				label: "@",
 				barColor: "@",
-				onClick: "&"
+				onClick: "&",
+                updateItems: "&"
 			},
 			link: function (scope, iElement, iAttrs) {
 				var d3 = $window.d3;
@@ -306,6 +307,8 @@
 				var width = 600,
 					height = (width < 400) ? 300 : 500,
 					radius = Math.min(width, height) / 2;
+
+                var items = [];
 
 				var arc = d3.svg.arc()
 					.innerRadius(radius - 100)
@@ -335,13 +338,18 @@
 						.data(pie)
 						.enter()
                             .append("path")
-                            .on("click", function (d, i) { d.color = color(i); return scope.onClick({ item: d }); })
-    						.attr("fill", function(d, i) { return color(i); })
+                            .each(function(d,i) { d.color = color(i); items.push(d); })
+                            .on("click", function (d, i) { return scope.onClick({ item: d }); })
+    						.attr("fill", function(d, i) { return d.color; })
     						.attr("d", arc)
     						.each(function(d) { this._current = d; }); // store the initial angles
 				};
 
-
+                if(scope.updateItems) {
+                    $timeout(function() {
+                        return scope.updateItems({ items: items });
+                    }, 500);
+                }
 
 				// on window resize, re-render d3 canvas
 				window.onresize = function () {
@@ -380,13 +388,6 @@
 })();
 
 (function() {
-	'use strict';
-	angular.module('app')
-		.controller('MainCtrl', [function () {
-		}]);
-})();
-
-(function() {
     'use strict';
 
     angular.module('app')
@@ -398,6 +399,13 @@
         .controller('LogOutCtrl', function ($scope, UserServices) {
             UserServices.logout();
         });
+})();
+
+(function() {
+	'use strict';
+	angular.module('app')
+		.controller('MainCtrl', [function () {
+		}]);
 })();
 
 (function() {
@@ -884,13 +892,17 @@
             }
 
             $scope.revealEntries = function(item) {
-                setBorderStyleForEntries($scope.timeEntries);
-                for(var i = 0; i < $scope.timeEntries.length; i++) {
-                    var entry = $scope.timeEntries[i];
-                    if(item.data.name == entry.ProjectName) {
-                        $scope.$apply(function() {
-                            entry.BorderStyle = '4px solid ' + item.color;
-                        });
+                //setBorderStyleForEntries($scope.timeEntries);
+            }
+
+            $scope.addColorToEntries = function(items) {
+                for(var i = 0; i < items.length; i++) {
+                    var item = items[i];
+                    for(var x = 0; x < $scope.timeEntries.length; x++) {
+                        var entry = $scope.timeEntries[x];
+                        if(item.data.name === entry.ProjectName) {
+                            entry.BackgroundColor = item.color;
+                        }
                     }
                 }
             }
@@ -923,9 +935,10 @@
                 $location.url('/time/edit/' + newDateStr + '/' + entry.TimeEntryId);
             };
 
-            var setBorderStyleForEntries = function (entries) {
+            var setStyleForEntries = function (entries) {
                 for(var i = 0; i < entries.length; i++) {
-                    entries[i].BorderStyle = '4px solid #fff';
+                    entries[i].BackgroundColor = '#222222';
+                    entries[i].Color = '#fff';
                 }
             };
 
@@ -972,7 +985,7 @@
             var newDateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
             httpService.getCollection('timeentries/date/' + newDateStr).then(function(entries) {
                 $scope.timeEntries = entries;
-                setBorderStyleForEntries($scope.timeEntries);
+                setStyleForEntries($scope.timeEntries);
                 getProjectTotals($scope.timeEntries);
             });
 

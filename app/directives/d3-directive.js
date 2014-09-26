@@ -96,14 +96,15 @@
               }
           };
       }])
-	.directive('d3Donut', ['$window', function ($window) {
+	.directive('d3Donut', ['$window','$timeout', function ($window, $timeout) {
 		return {
 			restrict: 'EA',
 			scope: {
 				data: "=",
 				label: "@",
 				barColor: "@",
-				onClick: "&"
+				onClick: "&",
+                updateItems: "&"
 			},
 			link: function (scope, iElement, iAttrs) {
 				var d3 = $window.d3;
@@ -111,6 +112,8 @@
 				var width = 600,
 					height = (width < 400) ? 300 : 500,
 					radius = Math.min(width, height) / 2;
+
+                var items = [];
 
 				var arc = d3.svg.arc()
 					.innerRadius(radius - 100)
@@ -140,13 +143,18 @@
 						.data(pie)
 						.enter()
                             .append("path")
-                            .on("click", function (d, i) { d.color = color(i); return scope.onClick({ item: d }); })
-    						.attr("fill", function(d, i) { return color(i); })
+                            .each(function(d,i) { d.color = color(i); items.push(d); })
+                            .on("click", function (d, i) { return scope.onClick({ item: d }); })
+    						.attr("fill", function(d, i) { return d.color; })
     						.attr("d", arc)
     						.each(function(d) { this._current = d; }); // store the initial angles
 				};
 
-
+                if(scope.updateItems) {
+                    $timeout(function() {
+                        return scope.updateItems({ items: items });
+                    }, 500);
+                }
 
 				// on window resize, re-render d3 canvas
 				window.onresize = function () {

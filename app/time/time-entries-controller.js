@@ -22,13 +22,17 @@
             }
 
             $scope.revealEntries = function(item) {
-                setBorderStyleForEntries($scope.timeEntries);
-                for(var i = 0; i < $scope.timeEntries.length; i++) {
-                    var entry = $scope.timeEntries[i];
-                    if(item.data.name == entry.ProjectName) {
-                        $scope.$apply(function() {
-                            entry.BorderStyle = '4px solid ' + item.color;
-                        });
+                //setBorderStyleForEntries($scope.timeEntries);
+            }
+
+            $scope.addColorToEntries = function(items) {
+                for(var i = 0; i < items.length; i++) {
+                    var item = items[i];
+                    for(var x = 0; x < $scope.timeEntries.length; x++) {
+                        var entry = $scope.timeEntries[x];
+                        if(item.data.name === entry.ProjectName) {
+                            entry.BackgroundColor = item.color;
+                        }
                     }
                 }
             }
@@ -61,9 +65,10 @@
                 $location.url('/time/edit/' + newDateStr + '/' + entry.TimeEntryId);
             };
 
-            var setBorderStyleForEntries = function (entries) {
+            var setStyleForEntries = function (entries) {
                 for(var i = 0; i < entries.length; i++) {
-                    entries[i].BorderStyle = '4px solid #fff';
+                    entries[i].BackgroundColor = '#222222';
+                    entries[i].Color = '#fff';
                 }
             };
 
@@ -110,7 +115,7 @@
             var newDateStr = '' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
             httpService.getCollection('timeentries/date/' + newDateStr).then(function(entries) {
                 $scope.timeEntries = entries;
-                setBorderStyleForEntries($scope.timeEntries);
+                setStyleForEntries($scope.timeEntries);
                 getProjectTotals($scope.timeEntries);
             });
 

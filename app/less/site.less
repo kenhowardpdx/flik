@@ -143,6 +143,7 @@ body {
 .timeEntries {
     margin-top: 20px;
     li {
+        clear: both;
         border-top: 1px dashed @gray-lighter;
         font-size: 18px;
         padding: 10px 0;
@@ -155,9 +156,11 @@ body {
                 border-left: 2px solid @brand-primary!important;
             }
         }
-        span {
-            display: block;
-            padding-left: 10px;
+        .hours-pill {
+            border-radius: 25px;
+            padding: 5px 0;
+            margin: 0;
+            text-align: center;
         }
         &:last-child {
             border-bottom: 1px solid @gray-lighter;

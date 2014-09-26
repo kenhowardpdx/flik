@@ -15,10 +15,13 @@
     </div>
 </div>
 
-<d3-donut data="projectTotalsForDay" on-click="revealEntries(item)" label="name" class="row d3 donut-chart" collapse="chartCollapsed" class="collapse"></d3-donut>
+<d3-donut data="projectTotalsForDay" on-click="revealEntries(item)" update-items="addColorToEntries(items)" label="name" class="row d3 donut-chart" collapse="chartCollapsed" class="collapse"></d3-donut>
 
 <ul class="timeEntries nav navbar-vertical">
-    <li ng-repeat="entry in timeEntries" ng-click="editEntry(entry)">
-        <span ng-bind="entry.Comment" ng-style="{ 'border-left': entry.BorderStyle }"></span>
+    <li ng-repeat="entry in timeEntries" ng-click="editEntry(entry)" class="row">
+        <div class="row">
+            <div ng-bind="entry.Comment" class="col-xs-9 comment"></div>
+            <div ng-bind="entry.TotalTimeDisplay" class="col-xs-2 hours-pill pill" ng-style="{ 'color': entry.Color, 'background-color': entry.BackgroundColor }"></div>
+        </div>
     </li>
 </ul>
