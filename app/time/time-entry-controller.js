@@ -73,11 +73,11 @@
 
 				var num = tmp[0];
 
-				if(tmp[0].indexOf(':')) {
+				if(tmp[0].indexOf(':') != -1) {
 					num = timeToFloat(num);
 				}
 
-				if(!timeStr[0].indexOf(':') && !timeStr[0].indexOf('.')) {
+				if(timeStr[0].indexOf(':') == -1 && timeStr[0].indexOf('.') == -1) {
 					switch(tmp[1]) {
 						case 'min':
 						case 'm':

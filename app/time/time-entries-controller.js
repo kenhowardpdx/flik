@@ -44,6 +44,7 @@
             }
             $scope.timeEntries = [];
             $scope.projectTotalsForDay = [];
+            $scope.totalTime = 0;
 
             $scope.previousDate = function () {
                 $scope.timeEntryDate.setDate($scope.timeEntryDate.getDate() - 1);
@@ -109,6 +110,8 @@
                     tmpProjectTotals[x].score = percent;
                     $scope.projectTotalsForDay.push(tmpProjectTotals[x]);
                 }
+
+                $scope.totalTime = totalTime;
             };
 
             var date = $scope.timeEntryDate;

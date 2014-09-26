@@ -17,6 +17,10 @@
 
 <d3-donut data="projectTotalsForDay" on-click="revealEntries(item)" update-items="addColorToEntries(items)" label="name" class="row d3 donut-chart" collapse="chartCollapsed" class="collapse"></d3-donut>
 
+<div ng-show="totalTime" class="totalTime">
+    Total Hours: <span ng-bind="totalTime"></span>
+</div>
+
 <ul class="timeEntries nav navbar-vertical">
     <li ng-repeat="entry in timeEntries" ng-click="editEntry(entry)" class="row">
         <div class="row">

@@ -6297,6 +6297,9 @@ button.close {
 .btn-group .btn:nth-child(3) .glyphicon {
   margin-left: 40%;
 }
+.totalTime {
+  margin: 20px 0 0;
+}
 .timeEntries {
   margin-top: 20px;
 }

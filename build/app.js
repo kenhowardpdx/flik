@@ -914,6 +914,7 @@
             }
             $scope.timeEntries = [];
             $scope.projectTotalsForDay = [];
+            $scope.totalTime = 0;
 
             $scope.previousDate = function () {
                 $scope.timeEntryDate.setDate($scope.timeEntryDate.getDate() - 1);
@@ -979,6 +980,8 @@
                     tmpProjectTotals[x].score = percent;
                     $scope.projectTotalsForDay.push(tmpProjectTotals[x]);
                 }
+
+                $scope.totalTime = totalTime;
             };
 
             var date = $scope.timeEntryDate;
@@ -1067,11 +1070,11 @@
 
 				var num = tmp[0];
 
-				if(tmp[0].indexOf(':')) {
+				if(tmp[0].indexOf(':') != -1) {
 					num = timeToFloat(num);
 				}
 
-				if(!timeStr[0].indexOf(':') && !timeStr[0].indexOf('.')) {
+				if(timeStr[0].indexOf(':') == -1 && timeStr[0].indexOf('.') == -1) {
 					switch(tmp[1]) {
 						case 'min':
 						case 'm':
