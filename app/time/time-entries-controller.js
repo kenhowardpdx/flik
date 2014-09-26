@@ -2,7 +2,7 @@
     'use strict';
 
     angular.module('app')
-        .controller('TimeEntriesCtrl', ['$scope','httpService','$location','$routeParams', function ($scope, httpService, $location, $routeParams) {
+        .controller('TimeEntriesCtrl', ['$scope','httpService','$location','$routeParams','flik', function ($scope, httpService, $location, $routeParams, flik) {
 
             var activeDate = {};
 
@@ -21,10 +21,7 @@
             }
 
             if($routeParams.dateStr) {
-                var dateArray = $routeParams.dateStr.split('-');
-                activeDate.Year = dateArray[2];
-                activeDate.Month = dateArray[0] - 1;
-                activeDate.Day = dateArray[1];
+                var activeDate = flik.getActiveDay($routeParams.dateStr);
 
                 $scope.timeEntryDate = new Date(activeDate.Year, activeDate.Month, activeDate.Day);
             }

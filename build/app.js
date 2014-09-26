@@ -394,13 +394,6 @@
 })();
 
 (function() {
-	'use strict';
-	angular.module('app')
-		.controller('MainCtrl', [function () {
-		}]);
-})();
-
-(function() {
     'use strict';
 
     angular.module('app')
@@ -418,6 +411,13 @@
 
       		$scope.isCollapsed = true;
         });
+})();
+
+(function() {
+	'use strict';
+	angular.module('app')
+		.controller('MainCtrl', [function () {
+		}]);
 })();
 
 (function(){
@@ -656,6 +656,27 @@
 })();
 /* jshint ignore:end */
 
+(function() {
+	'use strict';
+
+	angular.module('app')
+		.factory('flik', [function() {
+
+			return {
+				getActiveDay: getActiveDay
+			}
+
+			function getActiveDay (dateStr) {
+				var activeDate = {};
+				var dateArray = dateStr.split('-');
+				activeDate.Year = dateArray[2];
+				activeDate.Month = dateArray[0] - 1;
+				activeDate.Day = dateArray[1];
+				return activeDate;
+			};
+		}]);
+})();
+
 (function () {
 	'use strict';
 
@@ -843,7 +864,7 @@
     'use strict';
 
     angular.module('app')
-        .controller('TimeEntriesCtrl', ['$scope','httpService','$location','$routeParams', function ($scope, httpService, $location, $routeParams) {
+        .controller('TimeEntriesCtrl', ['$scope','httpService','$location','$routeParams','flik', function ($scope, httpService, $location, $routeParams, flik) {
 
             var activeDate = {};
 
@@ -862,10 +883,7 @@
             }
 
             if($routeParams.dateStr) {
-                var dateArray = $routeParams.dateStr.split('-');
-                activeDate.Year = dateArray[2];
-                activeDate.Month = dateArray[0] - 1;
-                activeDate.Day = dateArray[1];
+                var activeDate = flik.getActiveDay($routeParams.dateStr);
 
                 $scope.timeEntryDate = new Date(activeDate.Year, activeDate.Month, activeDate.Day);
             }
@@ -957,14 +975,18 @@
 			'$routeParams',
 			'$location',
 			'toaster',
-			function ($scope, httpService, $routeParams, $location, toaster) {
+			'flik',
+			function ($scope, httpService, $routeParams, $location, toaster, flik) {
 
 			var id = $routeParams.entryId;
 			var dateStr = $routeParams.dateStr;
+			$scope.cancelHref = '#/time/' + dateStr;
 
 			$scope.timeEntryDate = new Date();
-			if(dateStr) {
-				$scope.timeEntryDate = new Date(dateStr);
+			if($routeParams.dateStr) {
+                var activeDate = flik.getActiveDay($routeParams.dateStr);
+
+                $scope.timeEntryDate = new Date(activeDate.Year, activeDate.Month, activeDate.Day);
 			}
 
 			$scope.enteredTime = '';

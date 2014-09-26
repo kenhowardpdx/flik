@@ -8,14 +8,18 @@
 			'$routeParams',
 			'$location',
 			'toaster',
-			function ($scope, httpService, $routeParams, $location, toaster) {
+			'flik',
+			function ($scope, httpService, $routeParams, $location, toaster, flik) {
 
 			var id = $routeParams.entryId;
 			var dateStr = $routeParams.dateStr;
+			$scope.cancelHref = '#/time/' + dateStr;
 
 			$scope.timeEntryDate = new Date();
-			if(dateStr) {
-				$scope.timeEntryDate = new Date(dateStr);
+			if($routeParams.dateStr) {
+                var activeDate = flik.getActiveDay($routeParams.dateStr);
+
+                $scope.timeEntryDate = new Date(activeDate.Year, activeDate.Month, activeDate.Day);
 			}
 
 			$scope.enteredTime = '';
