@@ -6277,15 +6277,24 @@ button.close {
 }
 .btn-group .btn {
   width: 10%;
+  padding: 10px;
+}
+.btn-group .btn:nth-child(1) {
+  text-align: left;
+  padding-left: 0;
+}
+.btn-group .btn:nth-child(1) .glyphicon {
+  margin-left: 40%;
 }
 .btn-group .btn:nth-child(2) {
   width: 80%;
 }
-.btn-group .btn .glyphicon-chevron-left {
-  left: -6px;
+.btn-group .btn:nth-child(3) {
+  text-align: left;
+  padding-left: 0;
 }
-.btn-group .btn .glyphicon-chevron-right {
-  right: 6px;
+.btn-group .btn:nth-child(3) .glyphicon {
+  margin-left: 40%;
 }
 .timeEntries {
   margin-top: 20px;

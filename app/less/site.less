@@ -118,15 +118,23 @@ body {
     width: 100%;
     .btn {
         width: 10%;
+        padding: 10px;
+        &:nth-child(1) {
+            text-align: left;
+            padding-left: 0;
+            .glyphicon {
+                margin-left: 40%;
+            }
+        }
         &:nth-child(2) {
             width: 80%
         }
-
-        .glyphicon-chevron-left {
-            left: -6px;
-        }
-        .glyphicon-chevron-right {
-            right: 6px;
+        &:nth-child(3) {
+            text-align: left;
+            padding-left: 0;
+            .glyphicon {
+                margin-left: 40%;
+            }
         }
     }
 }
